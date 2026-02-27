@@ -37,3 +37,8 @@ Sigue estos pasos para configurar el proyecto con **MySQL**:
    ```cmd
    git clone [https://github.com/Andres-glitch-cell/IESJCVote.git](https://github.com/Andres-glitch-cell/IESJCVote.git)
    cd IESJCVote
+   ```
+   
+# Notaciones que entregar para la Entrega de la Base de Datos
+## 1. Entidad Relación
+## 2. Paso a tablas
