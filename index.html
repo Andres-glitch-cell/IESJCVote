@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IES JC - Vote App</title>
+    <style>
+        body {
+            text-align: center;
+        }
+
+        .validacionNombre {
+            padding: 2%;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>IES JC - Votes</h1>
+    <!-- ! Validación -->
+    <form id="miFormulario" action="agradecimientos.html">
+        <div class="validacionNombre">
+            <label>Nombre de Usuario:</label>
+            <!-- primer [0] input-->
+            <input type="text" id="nombreUsuario">
+        </div>
+
+        <div class="validacionDni">
+            <span>DNI:</span>
+            <!-- segundo [1] input-->
+            <input type="text" id="dniUsuario">
+        </div>
+
+        <div style="margin-top: 2%;">
+            <button type="submit">Enviar</button>
+        </div>
+    </form>
+
+    <script>
+
+        let elementoNombreUsuario = document.getElementsByTagName("input")[0]
+        let elementoDniUsuario = document.getElementsByTagName("input")[1]
+        let elementoMiFormulario = document.getElementById("miFormulario")
+        // ! Expresión para Nombre de Usuario (NO permite dígitos ni caracteres raros)
+        let expresionUsuario = /^[a-zA-Z]+[^a-zA-Z\d]+[^\^\¨\*\+\!\"\·\$\%\&\/\(\)\=\?\¿\¡\!]$/
+
+        elementoMiFormulario.addEventListener("submit", (e) => {
+            let valorNombreUsuario = elementoNombreUsuario.value
+
+            if (!(expresionUsuario.test(valorNombreUsuario))) {
+                alert("El nombre NO debe contener números, ni caracteres especiales")
+                e.preventDefault()
+            } if (valorNombreUsuario.length <= 3) {
+                alert("Tú nombre es demasiado corto como mínimo 3 letras como Adri")
+                e.preventDefault()
+            }
+        })
+    </script>
+
+
+
+</body>
+
+</html>
