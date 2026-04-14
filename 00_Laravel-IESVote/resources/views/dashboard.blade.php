@@ -2,10 +2,11 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso · Votación</title>
-    <style>
+
+<style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
         :root {
@@ -23,7 +24,7 @@
             box-sizing: border-box
         }
 
-        body {
+body {
             font-family: Inter, sans-serif;
             background:
                 radial-gradient(circle at 20% 20%, rgba(255, 255, 255, .08), transparent 35%),
@@ -147,7 +148,7 @@
 
         /* FOOTER */
         .footer {
-            text-align: center;
+text-align: center;
             margin-top: 18px;
             font-size: 11px;
             color: rgba(255, 255, 255, .35);
@@ -158,7 +159,7 @@
             height: 1px;
             margin: 18px 0;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .1), transparent);
-        }
+}
 
         /* SHAKE */
         @keyframes shake {
@@ -179,43 +180,52 @@
             75% {
                 transform: translateX(-3px)
             }
-        }
-    </style>
+}
+</style>
 </head>
 
 <body>
+
     <div class="contenedor">
+
         <div class="cabecera">
             <div class="kicker">IES JC · Acceso</div>
             <div class="titulo">Votación digital</div>
             <div class="subtitulo">Acceso seguro verificado</div>
-        </div>
+</div>
 
         <div class="card" id="card">
 
             <form id="form">
+
                 <div class="campo">
-                    <label>Usuario</label>
-                    <input id="nombre" type="text" placeholder="Ej: Juan">
+                    <label>Nombre completo</label>
+                    <input id="nombre" type="text" placeholder="Ej: Juan García">
+                    <div class="error" id="errNombre">Nombre inválido</div>
                 </div>
+
                 <div class="campo">
                     <label>DNI</label>
                     <input id="dni" type="text" maxlength="9" placeholder="12345678A">
                     <div class="error" id="errDni">DNI inválido</div>
                 </div>
+
                 <div class="divider"></div>
+
                 <button type="submit">Acceder</button>
+
             </form>
 
             <div class="footer">Sesión protegida</div>
-        </div>
+
+</div>
+
     </div>
 
-    <script>
+<script>
         const form = document.getElementById("form");
         const card = document.getElementById("card");
 
-        const elementoNombre = document.getElementById("nombre")
         const shake = () => {
             card.style.animation = "shake .3s";
             setTimeout(() => card.style.animation = "", 300);
@@ -240,5 +250,3 @@
     </script>
 
 </body>
-
-</html>
