@@ -30,6 +30,6 @@ Homestead.json
 auth.json
 
 # ! Git Ignore por Andrés
-
-*.sql
-*.pem
+03_pemKeys/
+02_phpInstallation_Windows
+02_phpInstallation_Linux
