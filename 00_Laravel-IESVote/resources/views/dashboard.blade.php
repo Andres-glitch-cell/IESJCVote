@@ -2,11 +2,11 @@
 <html lang="es">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso · Votación</title>
 
-<style>
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
         :root {
@@ -24,7 +24,7 @@
             box-sizing: border-box
         }
 
-body {
+        body {
             font-family: Inter, sans-serif;
             background:
                 radial-gradient(circle at 20% 20%, rgba(255, 255, 255, .08), transparent 35%),
@@ -148,7 +148,7 @@ body {
 
         /* FOOTER */
         .footer {
-text-align: center;
+            text-align: center;
             margin-top: 18px;
             font-size: 11px;
             color: rgba(255, 255, 255, .35);
@@ -159,7 +159,7 @@ text-align: center;
             height: 1px;
             margin: 18px 0;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .1), transparent);
-}
+        }
 
         /* SHAKE */
         @keyframes shake {
@@ -180,8 +180,31 @@ text-align: center;
             75% {
                 transform: translateX(-3px)
             }
-}
-</style>
+        }
+
+        .barra-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .barra {
+            height: 100%;
+            width: 0%;
+            background: rgba(255, 255, 255, 0.9);
+            transition: width 0.2s ease;
+        }
+
+        .contador {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 4px;
+            text-align: right;
+        }
+    </style>
 </head>
 
 <body>
@@ -192,21 +215,33 @@ text-align: center;
             <div class="kicker">IES JC · Acceso</div>
             <div class="titulo">Votación digital</div>
             <div class="subtitulo">Acceso seguro verificado</div>
-</div>
+        </div>
 
         <div class="card" id="card">
 
             <form id="form">
 
                 <div class="campo">
-                    <label>Nombre completo</label>
-                    <input id="nombre" type="text" placeholder="Ej: Juan García">
-                    <div class="error" id="errNombre">Nombre inválido</div>
+                    <label>Usuario</label>
+                    <input id="nombre" type="text" placeholder="Ej: Juan">
+                    <div class="barra-container">
+                        <div class="barra" id="barraNombre"></div>
+                    </div>
+                    <div class="contador" id="contadorNombre"></div>
+                    <!-- ! Insertar esto a como un innerHTML -->
+                    <div class="error" id="errNombre">Usuario</div>
                 </div>
 
                 <div class="campo">
                     <label>DNI</label>
                     <input id="dni" type="text" maxlength="9" placeholder="12345678A">
+
+                    <div class="barra-container">
+                        <div class="barra" id="barraDNI"></div>
+                    </div>
+                    <div class="contador" id="contadorDNI"></div>
+
+                    <!-- ! Insertar esto a como un innerHTML -->
                     <div class="error" id="errDni">DNI inválido</div>
                 </div>
 
@@ -218,11 +253,83 @@ text-align: center;
 
             <div class="footer">Sesión protegida</div>
 
-</div>
+        </div>
 
     </div>
 
-<script>
+    <script>
+        // ! BARRA NOMBRE
+        const inputNombre = document.getElementById("nombre");
+        const barra = document.getElementById("barraNombre");
+        const contador = document.getElementById("contadorNombre");
+
+        inputNombre.addEventListener("input", () => {
+            let longitud = inputNombre.value.length;
+
+            // Limitar a 10 caracteres
+            if (longitud > 10) {
+                inputNombre.value = inputNombre.value.slice(0, 10);
+                longitud = 10;
+            }
+
+            // Porcentaje barra
+            const porcentaje = (longitud / 10) * 100;
+            barra.style.width = porcentaje + "%";
+
+            if (longitud === 0) {
+                contador.textContent = "";
+            } else if (longitud <= 2) {
+                contador.textContent = "Usuario corto";
+                barra.style.background = "#ff6b6b";
+                contador.style.color = "#ff6b6b";
+            } else if (longitud <= 4) {
+                contador.textContent = "Usuario aceptable";
+                barra.style.background = "#f7b731";
+                contador.style.color = "#f7b731";
+            } else if (longitud <= 6) {
+                contador.textContent = "Usuario bueno";
+                barra.style.background = "#4dabf7";
+                contador.style.color = "#4dabf7";
+            } else {
+                contador.textContent = "Usuario ideal";
+                barra.style.background = "#4caf50";
+                contador.style.color = "#4caf50";
+            }
+        });
+        // ! BARRA NOMBRE
+
+        // ! BARRA DNI
+
+        const inputDNI = document.getElementById("dni");
+        const barraDNI = document.getElementById("barraDNI");
+        const contadorDNI = document.getElementById("contadorDNI");
+
+        inputDNI.addEventListener("input", () => {
+            let longitudDNI = inputDNI.value.length;
+            // Limitar a 10 caracteres
+            if (longitudDNI > 9) {
+                inputDNI.value = inputDNI.value.slice(0, 9);
+                longitudDNI = 9;
+            }
+            // Porcentaje barraDNI
+            const porcentaje = (longitudDNI / 10) * 100;
+            barraDNI.style.width = porcentaje + "%";
+            const dniValido = /^\d{8}[A-Z]$/.test(inputDNI.value);
+            if (longitudDNI === 0) {
+                contadorDNI.textContent = "";
+            } else if (!dniValido) {
+                contadorDNI.textContent = "DNI inválido";
+                barraDNI.style.background = "#ff6b6b";
+                contadorDNI.style.color = "#ff6b6b";
+            } else {
+                contadorDNI.textContent = "DNI correcto";
+                barraDNI.style.background = "#4caf50";
+                contadorDNI.style.color = "#4caf50";
+            }
+        });
+
+        // ! BARRA DNI
+
         const form = document.getElementById("form");
         const card = document.getElementById("card");
 
@@ -243,6 +350,14 @@ text-align: center;
             document.getElementById("errNombre").style.display = okNombre ? "none" : "block";
             document.getElementById("errDni").style.display = okDni ? "none" : "block";
 
+            const elementoNombreValue = nombre.value
+            const elementoDNIValue = dni.value
+            if (elementoNombreValue === "") {
+                document.getElementById("errNombre").textContent = "Campo nombre vacío"
+            }
+            if (elementoDNIValue === "") {
+                document.getElementById("errDni").textContent = "Campo DNI vacío"
+            }
             if (okNombre && okDni) {
                 location.href = "agradecimientos.html";
             } else shake();
