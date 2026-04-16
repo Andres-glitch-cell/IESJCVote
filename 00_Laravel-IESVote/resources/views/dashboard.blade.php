@@ -188,7 +188,7 @@
             background: rgba(255, 255, 255, 0.08);
             border-radius: 10px;
             overflow: hidden;
-            margin-top: 6px;
+            margin-top: 15px;
         }
 
         .barra {
@@ -219,8 +219,8 @@
 
         <div class="card" id="card">
 
-            <form id="form">
-
+            <form id="form" method="POST" action="{{ route('dashboard') }}">
+                @csrf
                 <div class="campo">
                     <label>Usuario</label>
                     <input id="nombre" type="text" placeholder="Ej: Juan">
@@ -245,6 +245,21 @@
                     <div class="error" id="errDni">DNI inválido</div>
                 </div>
 
+                <!-- /* ! INPUT ADMIN */ -->
+                <!-- /* # Contraseña por el administrador -> alert('IESJCVote2026'); */ MAX 23 CARACTERES && MODO CONTRASEÑA EN JS -->
+                <div class="campo">
+                    <label>Contraseña Administrador</label>
+                    <input id="contraseñaAdministrador" placeholder="Contraseña dada al administrador.">
+
+                    <div class="barra-container">
+                        <div class="barra" id="barraContraseñaAdministrador"></div>
+                    </div>
+                    <div class="contador" id="contadorContraseñaAdministrador"></div>
+                    <div id="mensaje"></div>
+                    <!-- ! Insertar esto a como un innerHTML -->
+                    <div class="error" id="errContraseñaAdministrador">DNI inválido</div>
+                </div>
+
                 <div class="divider"></div>
 
                 <button type="submit">Acceder</button>
@@ -260,18 +275,17 @@
     <script>
         // ! BARRA NOMBRE
         const inputNombre = document.getElementById("nombre");
+        inputNombre.focus();
         const barra = document.getElementById("barraNombre");
         const contador = document.getElementById("contadorNombre");
 
         inputNombre.addEventListener("input", () => {
             let longitud = inputNombre.value.length;
-
             // Limitar a 10 caracteres
             if (longitud > 10) {
                 inputNombre.value = inputNombre.value.slice(0, 10);
                 longitud = 10;
             }
-
             // Porcentaje barra
             const porcentaje = (longitud / 10) * 100;
             barra.style.width = porcentaje + "%";
@@ -330,6 +344,42 @@
 
         // ! BARRA DNI
 
+        const inputContraseñaAdmin = document.getElementById("contraseñaAdministrador");
+        const barraContraseña = document.getElementById("barraContraseñaAdministrador");
+        const contadorContraseña = document.getElementById("contadorContraseñaAdministrador");
+
+        const MAX = 23;
+
+        inputContraseñaAdmin.addEventListener("input", () => {
+            let len = inputContraseñaAdmin.value.length;
+
+            // limitar
+            if (len > MAX) {
+                inputContraseñaAdmin.value = inputContraseñaAdmin.value.slice(0, MAX);
+                len = MAX;
+            }
+
+            // barra
+            const porcentaje = (len / MAX) * 100;
+            barraContraseña.style.width = porcentaje + "%";
+
+            // validación
+            const esValida = inputContraseñaAdmin.value === "alert('IESJCVote2026');";
+
+            if (len === 0) {
+                contadorContraseña.textContent = "";
+                barraContraseña.style.background = "rgba(255,255,255,0.9)";
+            } else if (esValida) {
+                contadorContraseña.textContent = "Contraseña correcta";
+                barraContraseña.style.background = "#4caf50";
+                contadorContraseña.style.color = "#4caf50";
+            } else {
+                contadorContraseña.textContent = "Contraseña incorrecta";
+                barraContraseña.style.background = "#ff6b6b";
+                contadorContraseña.style.color = "#ff6b6b";
+            }
+        });
+
         const form = document.getElementById("form");
         const card = document.getElementById("card");
 
@@ -359,7 +409,7 @@
                 document.getElementById("errDni").textContent = "Campo DNI vacío"
             }
             if (okNombre && okDni) {
-                location.href = "agradecimientos.html";
+                location.href = "";
             } else shake();
         });
     </script>

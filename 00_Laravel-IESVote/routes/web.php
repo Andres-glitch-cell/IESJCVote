@@ -1,12 +1,9 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 
-/* SVG de Laravel
+// # Mostrar formulario
 Route::get('/', function () {
-    return view('welcome');
-});
-*/
+    return view('dashboard');
+})->name('dashboard');
 
-Route::view('/', 'dashboard');
-
+?>
