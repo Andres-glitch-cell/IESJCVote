@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso · Votación</title>
 
+    <!-- // IMPORTANT: TERMINAR DE REVISAR LOS ESTILOS DE CSS (APRENDER || PREGUNTAR A ISAAC) -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
@@ -182,7 +183,8 @@
             }
         }
 
-        .barra-container {
+        .barra-container,
+        barra-container-usuario {
             width: 100%;
             height: 4px;
             background: rgba(255, 255, 255, 0.08);
@@ -219,74 +221,73 @@
 
         <div class="card" id="card">
 
-            <form id="form" method="POST" action="{{ route('dashboard') }}">
+            <form id="form" method="POST" action="{{ route('00_register') }}">
                 @csrf
                 <div class="campo">
                     <label>Usuario</label>
-                    <input id="nombre" type="text" placeholder="Ej: Juan">
+                    <input id="nombre" name="nombre" type="text" placeholder="Ej: Juan">
+                    <div class="error" id="errNombre"></div>
                     <div class="barra-container">
                         <div class="barra" id="barraNombre"></div>
                     </div>
                     <div class="contador" id="contadorNombre"></div>
-                    <!-- ! Insertar esto a como un innerHTML -->
-                    <div class="error" id="errNombre">Usuario</div>
                 </div>
 
                 <div class="campo">
                     <label>DNI</label>
-                    <input id="dni" type="text" maxlength="9" placeholder="12345678A">
-
+                    <input id="dni" name="dni" type="text" maxlength="9" placeholder="12345678A">
+                    <div class="error" id="errDni"></div>
                     <div class="barra-container">
                         <div class="barra" id="barraDNI"></div>
                     </div>
                     <div class="contador" id="contadorDNI"></div>
-
-                    <!-- ! Insertar esto a como un innerHTML -->
-                    <div class="error" id="errDni">DNI inválido</div>
                 </div>
 
-                <!-- /* ! INPUT ADMIN */ -->
-                <!-- /* # Contraseña por el administrador -> alert('IESJCVote2026'); */ MAX 23 CARACTERES && MODO CONTRASEÑA EN JS -->
                 <div class="campo">
                     <label>Contraseña Administrador</label>
-                    <input id="contraseñaAdministrador" placeholder="Contraseña dada al administrador.">
+                    <input type="password" id="contraseñaAdministrador" name="password_admin"
+                        placeholder="Contraseña dada al administrador.">
 
                     <div class="barra-container">
                         <div class="barra" id="barraContraseñaAdministrador"></div>
                     </div>
                     <div class="contador" id="contadorContraseñaAdministrador"></div>
                     <div id="mensaje"></div>
-                    <!-- ! Insertar esto a como un innerHTML -->
                     <div class="error" id="errContraseñaAdministrador">DNI inválido</div>
                 </div>
-
                 <div class="divider"></div>
-
                 <button type="submit">Acceder</button>
-
             </form>
-
             <div class="footer">Sesión protegida</div>
-
         </div>
-
     </div>
-
+    <!-- // ! ------------------------------------------ SCRIPT ---------------------------------------------- -->
     <script>
         // ! BARRA NOMBRE
+        // IMPORTANT NO SE TOCA NADA POR AHORA !
         const inputNombre = document.getElementById("nombre");
         inputNombre.focus();
         const barra = document.getElementById("barraNombre");
         const contador = document.getElementById("contadorNombre");
 
         inputNombre.addEventListener("input", () => {
+            const errNombre = document.getElementById("errNombre");
+            if (!/^[a-zA-ZÁÉÍÓÚáéíóúÑñ]*$/.test(inputNombre.value)) {
+                errNombre.textContent = "Solo letras permitidas";
+                errNombre.style.display = "block";
+            } else if (inputNombre.value.length > 0 && inputNombre.value.length < 3) {
+                errNombre.textContent = "Mínimo 3 caracteres";
+                errNombre.style.display = "block";
+            } else {
+                errNombre.style.display = "none";
+            }
+            // FIXME: CAMBIAR POR OTRO MÉTODO || APRENDER (DEEPSEEK)
             let longitud = inputNombre.value.length;
-            // Limitar a 10 caracteres
             if (longitud > 10) {
                 inputNombre.value = inputNombre.value.slice(0, 10);
                 longitud = 10;
             }
-            // Porcentaje barra
+            // HACK: CHATGPT !
             const porcentaje = (longitud / 10) * 100;
             barra.style.width = porcentaje + "%";
 
@@ -311,49 +312,68 @@
             }
         });
         // ! BARRA NOMBRE
+        // IMPORTANT NO SE TOCA NADA POR AHORA !
 
         // ! BARRA DNI
-
         const inputDNI = document.getElementById("dni");
         const barraDNI = document.getElementById("barraDNI");
         const contadorDNI = document.getElementById("contadorDNI");
 
+        // NOTE: MÉTODO ISAAC (GROK)
         inputDNI.addEventListener("input", () => {
-            let longitudDNI = inputDNI.value.length;
-            // Limitar a 10 caracteres
-            if (longitudDNI > 9) {
-                inputDNI.value = inputDNI.value.slice(0, 9);
-                longitudDNI = 9;
+            let valor = inputDNI.value.toUpperCase();
+            let resultado = "";
+            for (let i = 0; i < valor.length; i++) {
+                const letraEscritaPorUsuario = valor[i];
+                if (i < 8) {
+                    if (letraEscritaPorUsuario >= "0" && letraEscritaPorUsuario <= "9") {
+                        resultado = resultado + letraEscritaPorUsuario;
+                    }
+                } else if (i === 8) {
+                    if (letraEscritaPorUsuario >= "A" && letraEscritaPorUsuario <= "Z") {
+                        resultado = resultado + letraEscritaPorUsuario;
+                    }
+                }
             }
-            // Porcentaje barraDNI
-            const porcentaje = (longitudDNI / 10) * 100;
+
+            // HACK: GEMINI (THINKING VERSION)
+            resultado = resultado.slice(0, 9);
+            inputDNI.value = resultado;
+
+            /*
+            // ! *** SAME AS Nombre
+             */
+            const longitud = resultado.length;
+            const porcentaje = (longitud / 9) * 100;
             barraDNI.style.width = porcentaje + "%";
-            const dniValido = /^\d{8}[A-Z]$/.test(inputDNI.value);
-            if (longitudDNI === 0) {
+
+            const dniValido = /^\d{8}[A-Z]$/.test(resultado);
+
+            if (longitud === 0) {
                 contadorDNI.textContent = "";
+            } else if (longitud < 9) {
+                contadorDNI.textContent = "DNI incompleto";
+                barraDNI.style.background = "#f7b731";
             } else if (!dniValido) {
                 contadorDNI.textContent = "DNI inválido";
                 barraDNI.style.background = "#ff6b6b";
-                contadorDNI.style.color = "#ff6b6b";
             } else {
                 contadorDNI.textContent = "DNI correcto";
                 barraDNI.style.background = "#4caf50";
-                contadorDNI.style.color = "#4caf50";
             }
         });
 
-        // ! BARRA DNI
+        // ! FIN BARRA DNI
+
+        // ! CONTRASEÑA ADMINISTRADOR (ONLY 23 CHARACTERS)
 
         const inputContraseñaAdmin = document.getElementById("contraseñaAdministrador");
         const barraContraseña = document.getElementById("barraContraseñaAdministrador");
         const contadorContraseña = document.getElementById("contadorContraseñaAdministrador");
 
         const MAX = 23;
-
         inputContraseñaAdmin.addEventListener("input", () => {
             let len = inputContraseñaAdmin.value.length;
-
-            // limitar
             if (len > MAX) {
                 inputContraseñaAdmin.value = inputContraseñaAdmin.value.slice(0, MAX);
                 len = MAX;
@@ -375,10 +395,10 @@
                 contadorContraseña.style.color = "#4caf50";
             } else {
                 contadorContraseña.textContent = "Contraseña incorrecta";
-                barraContraseña.style.background = "#ff6b6b";
-                contadorContraseña.style.color = "#ff6b6b";
+
             }
         });
+        // ! FINAL CONTRASEÑA ADMINISTRADOR
 
         const form = document.getElementById("form");
         const card = document.getElementById("card");
@@ -394,23 +414,50 @@
             const nombre = document.getElementById("nombre");
             const dni = document.getElementById("dni");
 
-            const okNombre = /^[a-zA-ZÁÉÍÓÚáéíóúÑñ\s]{3,}$/.test(nombre.value);
-            const okDni = /^\d{8}[A-Z]$/.test(dni.value);
+            const errNombre = document.getElementById("errNombre");
+            const errDni = document.getElementById("errDni");
 
-            document.getElementById("errNombre").style.display = okNombre ? "none" : "block";
-            document.getElementById("errDni").style.display = okDni ? "none" : "block";
+            // * ===== NOMBRE =====
+            if (nombre.value === "") {
+                errNombre.textContent = "Campo nombre vacío";
+                errNombre.style.display = "block";
+                shake();
+                return;
+            }
 
-            const elementoNombreValue = nombre.value
-            const elementoDNIValue = dni.value
-            if (elementoNombreValue === "") {
-                document.getElementById("errNombre").textContent = "Campo nombre vacío"
+            if (nombre.value.length < 3) {
+                errNombre.textContent = "Mínimo 3 caracteres";
+                errNombre.style.display = "block";
+                shake();
+                return;
             }
-            if (elementoDNIValue === "") {
-                document.getElementById("errDni").textContent = "Campo DNI vacío"
+
+            errNombre.style.display = "none";
+
+            // * ===== DNI =====
+            if (dni.value === "") {
+                errDni.textContent = "Campo DNI vacío";
+                errDni.style.display = "block";
+                shake();
+                return;
             }
-            if (okNombre && okDni) {
-                location.href = "";
-            } else shake();
+
+            if (!/^\d{8}[A-Z]$/.test(dni.value)) {
+                errDni.textContent = "Formato DNI inválido, Formato Válido --> (12345678A)";
+                errDni.style.display = "block";
+                shake();
+                return;
+            }
+
+            errDni.style.display = "none";
+
+            // * ===== TODO CORRECTO =====
+            form.submit();
+
+            setTimeout(() => {
+                console.log("Formulario Enviado Correctamente Proseguir !")
+            }, 10000);
+
         });
     </script>
 
