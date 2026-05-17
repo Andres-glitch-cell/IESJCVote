@@ -72,7 +72,7 @@
         <h1>Encuestas No Vinculadas Por El Momento.</h1>
     </div>
     <div class="container">
-        <button onclick="{{ route('00_register') }}">Volver al inicio</button>
+        <a href="{{ route('home') }}" class="btn-volver">Volver al inicio</a>
     </div>
 </body>
 

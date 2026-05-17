@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso · Votación</title>
 
-    <!-- // IMPORTANT: TERMINAR DE REVISAR LOS ESTILOS DE CSS (APRENDER || PREGUNTAR A ISAAC) -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
@@ -18,7 +17,6 @@
             --muted: rgba(255, 255, 255, .55);
         }
 
-        /* RESET */
         * {
             margin: 0;
             padding: 0;
@@ -35,7 +33,6 @@
             min-height: 100vh;
         }
 
-        /* LAYOUT */
         .contenedor {
             display: flex;
             flex-direction: column;
@@ -45,7 +42,6 @@
             padding: 40px 20px;
         }
 
-        /* HEADER */
         .cabecera {
             text-align: center;
             margin-bottom: 36px
@@ -70,7 +66,6 @@
             color: var(--muted);
         }
 
-        /* CARD */
         .card {
             width: 100%;
             max-width: 420px;
@@ -87,7 +82,6 @@
             transform: translateY(-3px)
         }
 
-        /* FORM */
         .campo {
             margin-bottom: 18px
         }
@@ -118,7 +112,6 @@
             box-shadow: 0 0 0 4px rgba(255, 255, 255, .05);
         }
 
-        /* BUTTON */
         button {
             width: 100%;
             margin-top: 10px;
@@ -139,7 +132,6 @@
             transform: translateY(-1px);
         }
 
-        /* ERROR */
         .error {
             font-size: 12px;
             color: #ff6b6b;
@@ -147,7 +139,6 @@
             display: none;
         }
 
-        /* FOOTER */
         .footer {
             text-align: center;
             margin-top: 18px;
@@ -155,14 +146,12 @@
             color: rgba(255, 255, 255, .35);
         }
 
-        /* DIVIDER */
         .divider {
             height: 1px;
             margin: 18px 0;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .1), transparent);
         }
 
-        /* SHAKE */
         @keyframes shake {
 
             0%,
@@ -183,8 +172,7 @@
             }
         }
 
-        .barra-container,
-        barra-container-usuario {
+        .barra-container {
             width: 100%;
             height: 4px;
             background: rgba(255, 255, 255, 0.08);
@@ -221,7 +209,7 @@
 
         <div class="card" id="card">
 
-            <form id="form" method="POST" action="{{ route('00_register') }}">
+            <form id="form" method="POST" action="{{ route('register') }}">
                 @csrf
                 <div class="campo">
                     <label>Usuario</label>
@@ -244,31 +232,34 @@
                 </div>
 
                 <div class="campo">
-                    <label>Contraseña Administrador</label>
+                    <label>Contraseña Administrador <span
+                            style="font-weight:normal; opacity:0.6;">(opcional)</span></label>
                     <input type="password" id="contraseñaAdministrador" name="password_admin"
-                        placeholder="Contraseña dada al administrador.">
+                        placeholder="Solo para administradores...">
 
                     <div class="barra-container">
                         <div class="barra" id="barraContraseñaAdministrador"></div>
                     </div>
                     <div class="contador" id="contadorContraseñaAdministrador"></div>
-                    <div id="mensaje"></div>
-                    <div class="error" id="errContraseñaAdministrador">DNI inválido</div>
+                    <div class="error" id="errContraseñaAdministrador"></div>
                 </div>
-                <div class="divider"></div>
-                <button type="submit">Acceder</button>
+
+                <button type="submit">Regístrese</button>
             </form>
-            <div class="footer">Sesión protegida</div>
+            <div class="footer">
+                Sesión protegida - <a href="{{ route('login') }}">Ya tiene cuenta, Inicie Sesión!</a>
+            </div>
+
+
         </div>
     </div>
-    <!-- // ! ------------------------------------------ SCRIPT ---------------------------------------------- -->
+
     <script>
-        // ! BARRA NOMBRE
-        // IMPORTANT NO SE TOCA NADA POR AHORA !
+        // BARRA NOMBRE
         const inputNombre = document.getElementById("nombre");
         inputNombre.focus();
-        const barra = document.getElementById("barraNombre");
-        const contador = document.getElementById("contadorNombre");
+        const barraNombre = document.getElementById("barraNombre");
+        const contadorNombre = document.getElementById("contadorNombre");
 
         inputNombre.addEventListener("input", () => {
             const errNombre = document.getElementById("errNombre");
@@ -281,77 +272,56 @@
             } else {
                 errNombre.style.display = "none";
             }
-            // FIXME: CAMBIAR POR OTRO MÉTODO || APRENDER (DEEPSEEK)
+
             let longitud = inputNombre.value.length;
             if (longitud > 10) {
                 inputNombre.value = inputNombre.value.slice(0, 10);
                 longitud = 10;
             }
-            // HACK: CHATGPT !
-            const porcentaje = (longitud / 10) * 100;
-            barra.style.width = porcentaje + "%";
 
-            if (longitud === 0) {
-                contador.textContent = "";
-            } else if (longitud <= 2) {
-                contador.textContent = "Usuario corto";
-                barra.style.background = "#ff6b6b";
-                contador.style.color = "#ff6b6b";
+            const porcentaje = (longitud / 10) * 100;
+            barraNombre.style.width = porcentaje + "%";
+
+            if (longitud === 0) contadorNombre.textContent = "";
+            else if (longitud <= 2) {
+                contadorNombre.textContent = "Usuario corto";
+                barraNombre.style.background = "#ff6b6b";
             } else if (longitud <= 4) {
-                contador.textContent = "Usuario aceptable";
-                barra.style.background = "#f7b731";
-                contador.style.color = "#f7b731";
+                contadorNombre.textContent = "Usuario aceptable";
+                barraNombre.style.background = "#f7b731";
             } else if (longitud <= 6) {
-                contador.textContent = "Usuario bueno";
-                barra.style.background = "#4dabf7";
-                contador.style.color = "#4dabf7";
+                contadorNombre.textContent = "Usuario bueno";
+                barraNombre.style.background = "#4dabf7";
             } else {
-                contador.textContent = "Usuario ideal";
-                barra.style.background = "#4caf50";
-                contador.style.color = "#4caf50";
+                contadorNombre.textContent = "Usuario ideal";
+                barraNombre.style.background = "#4caf50";
             }
         });
-        // ! BARRA NOMBRE
-        // IMPORTANT NO SE TOCA NADA POR AHORA !
 
-        // ! BARRA DNI
+        // BARRA DNI
         const inputDNI = document.getElementById("dni");
         const barraDNI = document.getElementById("barraDNI");
         const contadorDNI = document.getElementById("contadorDNI");
 
-        // NOTE: MÉTODO ISAAC (GROK)
         inputDNI.addEventListener("input", () => {
             let valor = inputDNI.value.toUpperCase();
             let resultado = "";
             for (let i = 0; i < valor.length; i++) {
-                const letraEscritaPorUsuario = valor[i];
-                if (i < 8) {
-                    if (letraEscritaPorUsuario >= "0" && letraEscritaPorUsuario <= "9") {
-                        resultado = resultado + letraEscritaPorUsuario;
-                    }
-                } else if (i === 8) {
-                    if (letraEscritaPorUsuario >= "A" && letraEscritaPorUsuario <= "Z") {
-                        resultado = resultado + letraEscritaPorUsuario;
-                    }
-                }
+                const char = valor[i];
+                if (i < 8 && char >= "0" && char <= "9") resultado += char;
+                else if (i === 8 && char >= "A" && char <= "Z") resultado += char;
             }
-
-            // HACK: GEMINI (THINKING VERSION)
             resultado = resultado.slice(0, 9);
             inputDNI.value = resultado;
 
-            /*
-            // ! *** SAME AS Nombre
-             */
             const longitud = resultado.length;
             const porcentaje = (longitud / 9) * 100;
             barraDNI.style.width = porcentaje + "%";
 
             const dniValido = /^\d{8}[A-Z]$/.test(resultado);
 
-            if (longitud === 0) {
-                contadorDNI.textContent = "";
-            } else if (longitud < 9) {
+            if (longitud === 0) contadorDNI.textContent = "";
+            else if (longitud < 9) {
                 contadorDNI.textContent = "DNI incompleto";
                 barraDNI.style.background = "#f7b731";
             } else if (!dniValido) {
@@ -363,15 +333,12 @@
             }
         });
 
-        // ! FIN BARRA DNI
-
-        // ! CONTRASEÑA ADMINISTRADOR (ONLY 23 CHARACTERS)
-
+        // CONTRASEÑA ADMINISTRADOR (opcional)
         const inputContraseñaAdmin = document.getElementById("contraseñaAdministrador");
         const barraContraseña = document.getElementById("barraContraseñaAdministrador");
         const contadorContraseña = document.getElementById("contadorContraseñaAdministrador");
 
-        const MAX = 23;
+        const MAX = 13;
         inputContraseñaAdmin.addEventListener("input", () => {
             let len = inputContraseñaAdmin.value.length;
             if (len > MAX) {
@@ -379,27 +346,22 @@
                 len = MAX;
             }
 
-            // barra
             const porcentaje = (len / MAX) * 100;
             barraContraseña.style.width = porcentaje + "%";
-
-            // validación
-            const esValida = inputContraseñaAdmin.value === "alert('IESJCVote2026');";
 
             if (len === 0) {
                 contadorContraseña.textContent = "";
                 barraContraseña.style.background = "rgba(255,255,255,0.9)";
-            } else if (esValida) {
+            } else if (inputContraseñaAdmin.value === "IESJCVote2026") {
                 contadorContraseña.textContent = "Contraseña correcta";
                 barraContraseña.style.background = "#4caf50";
-                contadorContraseña.style.color = "#4caf50";
             } else {
                 contadorContraseña.textContent = "Contraseña incorrecta";
-
+                barraContraseña.style.background = "#ff6b6b";
             }
         });
-        // ! FINAL CONTRASEÑA ADMINISTRADOR
 
+        // SUBMIT - Validación corregida
         const form = document.getElementById("form");
         const card = document.getElementById("card");
 
@@ -411,54 +373,62 @@
         form.addEventListener("submit", e => {
             e.preventDefault();
 
-            const nombre = document.getElementById("nombre");
-            const dni = document.getElementById("dni");
+            const nombre = document.getElementById("nombre").value.trim();
+            const dni = document.getElementById("dni").value.trim();
+            const passwordAdmin = document.getElementById("contraseñaAdministrador").value.trim();
 
             const errNombre = document.getElementById("errNombre");
             const errDni = document.getElementById("errDni");
+            const errPassword = document.getElementById("errContraseñaAdministrador");
 
-            // * ===== NOMBRE =====
-            if (nombre.value === "") {
+            // Resetear errores
+            errNombre.style.display = "none";
+            errDni.style.display = "none";
+            errPassword.style.display = "none";
+
+            // Validar Nombre
+            if (nombre === "") {
                 errNombre.textContent = "Campo nombre vacío";
                 errNombre.style.display = "block";
                 shake();
                 return;
             }
-
-            if (nombre.value.length < 3) {
+            if (nombre.length < 3) {
                 errNombre.textContent = "Mínimo 3 caracteres";
                 errNombre.style.display = "block";
                 shake();
                 return;
             }
 
-            errNombre.style.display = "none";
-
-            // * ===== DNI =====
-            if (dni.value === "") {
+            // Validar DNI
+            if (dni === "") {
                 errDni.textContent = "Campo DNI vacío";
                 errDni.style.display = "block";
                 shake();
                 return;
             }
-
-            if (!/^\d{8}[A-Z]$/.test(dni.value)) {
-                errDni.textContent = "Formato DNI inválido, Formato Válido --> (12345678A)";
+            if (!/^\d{8}[A-Z]$/.test(dni)) {
+                errDni.textContent = "Formato DNI inválido (12345678A)";
                 errDni.style.display = "block";
                 shake();
                 return;
             }
 
-            errDni.style.display = "none";
+            // Validar Contraseña SOLO si se escribió algo
+            if (passwordAdmin !== "") {
+                if (passwordAdmin !== "IESJCVote2026") {
+                    errPassword.textContent = "Contraseña de administrador incorrecta";
+                    errPassword.style.display = "block";
+                    shake();
+                    return;
+                }
+            }
 
-            // * ===== TODO CORRECTO =====
+            // Todo correcto → enviar al servidor
             form.submit();
-
-            setTimeout(() => {
-                console.log("Formulario Enviado Correctamente Proseguir !")
-            }, 10000);
-
         });
     </script>
 
 </body>
+
+</html>
