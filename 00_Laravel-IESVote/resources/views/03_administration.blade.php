@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración · IESJCVote</title>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
@@ -26,7 +28,7 @@
         }
 
         body {
-            font-family: Inter, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, .08), transparent 35%),
                 radial-gradient(circle at 80% 0%, rgba(255, 255, 255, .05), transparent 40%), var(--bg);
             color: var(--text);
@@ -46,6 +48,19 @@
             margin-bottom: 50px;
         }
 
+        .kicker {
+            font-size: 11px;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .titulo {
+            font-size: 38px;
+            font-weight: 500;
+            margin-top: 12px;
+        }
+
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -62,19 +77,6 @@
             border: 1px solid var(--stroke);
             backdrop-filter: blur(18px);
             box-shadow: 0 40px 100px rgba(0, 0, 0, .6);
-        }
-
-        .kicker {
-            font-size: 11px;
-            letter-spacing: .22em;
-            text-transform: uppercase;
-            color: var(--muted);
-        }
-
-        .titulo {
-            font-size: 38px;
-            font-weight: 500;
-            margin-top: 12px;
         }
 
         .seccion-titulo {
@@ -155,6 +157,37 @@
             transform: translateX(6px);
         }
 
+        /* Toast */
+        .toast-success {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(46, 204, 113, 0.15);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 16px 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(10px);
+            z-index: 3000;
+            font-weight: 500;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
         /* Modal */
         .modal {
             display: none;
@@ -163,25 +196,33 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(11, 12, 16, 0.85);
+            backdrop-filter: blur(8px);
             z-index: 2000;
             align-items: center;
             justify-content: center;
         }
 
         .modal-content {
-            background: #111;
+            background: #16171d;
             padding: 40px;
-            border-radius: 18px;
+            border-radius: 20px;
             width: 90%;
-            max-width: 460px;
-            border: 1px solid #333;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
         }
 
         .modal-title {
             font-size: 21px;
-            color: #ff6b6b;
+            color: #fff;
+            font-weight: 600;
             margin-bottom: 15px;
         }
 
@@ -208,20 +249,14 @@
         }
 
         .modal-yes {
-            background: #2ecc71;
+            background: var(--error);
             color: white;
         }
 
         .modal-no {
-            background: #333;
-            color: #ccc;
-            border: 1px solid #555;
-        }
-
-        @media (max-width: 950px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
+            background: transparent;
+            border: 1px solid #444;
+            color: #fff;
         }
     </style>
 </head>
@@ -229,22 +264,52 @@
 <body>
 
     <div class="container">
+
+        {{-- Notificación de Éxito --}}
+        @if (session('success'))
+            <div class="toast-success" id="notif">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>{{ session('success') }}</span>
+            </div>
+            <script>
+                setTimeout(() => {
+                    $('#notif').fadeOut(300);
+                }, 4000);
+            </script>
+        @endif
+
+        {{-- Notificación de Eliminación (asegúrate de tener este bloque también) --}}
+        @if (session('deleted'))
+            <div class="toast-success" id="notif-del">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Encuesta eliminada correctamente.</span>
+            </div>
+            <script>
+                setTimeout(() => {
+                    $('#notif-del').fadeOut(300);
+                }, 4000);
+            </script>
+        @endif
+
         <div class="cabecera">
             <div class="kicker">Panel de Control Interno</div>
             <div class="titulo">Gestión Electoral e Infraestructura</div>
         </div>
 
         <div class="dashboard-grid">
-            <!-- Formulario Crear -->
-            <!-- Formulario Crear (Limpio) -->
+            <!-- Formulario de creación -->
             <form action="{{ route('surveys.store') }}" method="POST" class="card">
                 @csrf
                 <div class="seccion-titulo">Crear Nueva Votación</div>
 
-                {{-- EL MENSAJE DE ÉXITO FUE ELIMINADO DE AQUÍ --}}
-
                 @if (session('error'))
-                    <div class="alert alert-error">{{ session('error') }}</div>
+                    <div style="color:var(--error); margin-bottom: 20px;">{{ session('error') }}</div>
                 @endif
 
                 <div class="campo">
@@ -263,9 +328,7 @@
                             <input type="text" name="options[]" placeholder="Opción 2" required>
                         </div>
                     </div>
-                    <button type="button" class="btn-accion" id="btn-add-opcion" style="margin-top:12px;">
-                        Añadir Opción
-                    </button>
+                    <button type="button" id="btn-add-opcion" style="margin-top:12px;">Añadir Opción</button>
                 </div>
 
                 <button type="submit" class="btn-primario">Publicar e Iniciar Votación</button>
@@ -280,7 +343,7 @@
                 </p>
             </div>
 
-            <!-- Tabla de Encuestas -->
+            <!-- Encuestas Activas -->
             <div class="card">
                 <div class="seccion-titulo">Encuestas Activas</div>
                 <div style="overflow-x: auto;">
@@ -299,12 +362,10 @@
                                         <button type="button"
                                             onclick="showDeleteModal('{{ $survey->id }}', '{{ addslashes($survey->title) }}')"
                                             class="btn-eliminar">Eliminar</button>
-
                                         <form id="delete-form-{{ $survey->id }}"
                                             action="{{ route('surveys.destroy', $survey->id) }}" method="POST"
                                             style="display: none;">
-                                            @csrf
-                                            @method('DELETE')
+                                            @csrf @method('DELETE')
                                         </form>
                                     </td>
                                 </tr>
@@ -318,53 +379,53 @@
         <a href="{{ route('home') }}" class="btn-volver">← Volver al inicio</a>
     </div>
 
-    <!-- MODAL -->
+    <!-- Modal de Eliminación -->
     <div id="deleteModal" class="modal">
         <div class="modal-content">
-            <div class="modal-title">Confirmar Eliminación</div>
+            <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+            <div class="modal-title">¿Estás seguro?</div>
             <div class="modal-text" id="modalSurveyName"></div>
             <div class="modal-buttons">
                 <button class="modal-btn modal-no" onclick="hideDeleteModal()">Cancelar</button>
-                <button class="modal-btn modal-yes" id="confirmDeleteBtn">Eliminar Encuesta</button>
+                <button class="modal-btn modal-yes" id="confirmDeleteBtn">Sí, eliminar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // === AÑADIR OPCIÓN (CORREGIDO) ===
-        document.getElementById("btn-add-opcion").addEventListener("click", function() {
-            const contenedor = document.getElementById("contenedor-opciones");
+        $(document).ready(function() {
 
-            const nuevoBloque = document.createElement("div");
-            nuevoBloque.className = "bloque-opcion";
-            nuevoBloque.innerHTML = `
-                <input type="text" name="options[]" placeholder="Nueva opción" required>
-                <button type="button" class="btn-eliminar" onclick="this.parentElement.remove()">×</button>
-            `;
-            contenedor.appendChild(nuevoBloque);
-        });
+            // Añadir opción
+            $("#btn-add-opcion").click(function() {
+                const nuevoBloque = `
+                    <div class="bloque-opcion">
+                        <input type="text" name="options[]" placeholder="Nueva opción" required>
+                        <button type="button" class="btn-eliminar" style="padding: 10px 15px;" onclick="$(this).parent().remove()">×</button>
+                    </div>`;
+                $("#contenedor-opciones").append(nuevoBloque);
+            });
 
-        // === MODAL ELIMINAR ===
-        let surveyIdToDelete = null;
+            // Modal de eliminación
+            let surveyIdToDelete = null;
 
-        function showDeleteModal(id, title) {
-            surveyIdToDelete = id;
-            document.getElementById('modalSurveyName').innerHTML = `¿Eliminar la encuesta <strong>"${title}"</strong>?`;
-            document.getElementById('deleteModal').style.display = 'flex';
-        }
+            window.showDeleteModal = function(id, title) {
+                surveyIdToDelete = id;
+                $("#modalSurveyName").html(
+                    `Se eliminará permanentemente la encuesta <strong>"${title}"</strong>. Esta acción no se puede deshacer.`
+                );
+                $("#deleteModal").fadeIn(300);
+            };
 
-        function hideDeleteModal() {
-            document.getElementById('deleteModal').style.display = 'none';
-        }
+            window.hideDeleteModal = function() {
+                $("#deleteModal").fadeOut(300);
+            };
 
-        document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-            if (surveyIdToDelete) {
-                // En lugar de crear un formulario nuevo, buscamos el que ya existe en el HTML
-                const form = document.getElementById(`delete-form-${surveyIdToDelete}`);
-                if (form) {
-                    form.submit();
+            $("#confirmDeleteBtn").click(function() {
+                if (surveyIdToDelete) {
+                    $(`#delete-form-${surveyIdToDelete}`).submit();
                 }
-            }
+            });
+
         });
     </script>
 </body>

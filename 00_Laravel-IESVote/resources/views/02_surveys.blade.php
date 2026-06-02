@@ -282,7 +282,7 @@
                                 @foreach ($survey->options as $option)
                                     <div class="opcion-item"
                                         onclick="document.getElementById('opcion_{{ $option->id }}').checked = true">
-                                        <input type="radio" id="opcion_{{ $option->id }}" name="survey_option"
+                                        <input type="radio" id="opcion_{{ $option->id }}" name="option_id"
                                             value="{{ $option->id }}" required>
                                         <label for="opcion_{{ $option->id }}">{{ $option->option_text }}</label>
                                     </div>
@@ -298,7 +298,7 @@
 
         <div class="footer-navigation">
             <a href="{{ route('home') }}" class="btn-volver">Cerrar Sesión / Volver al Inicio</a>
-            <a href="{{ route('surveys.receipt') }}" class="btn-volver">Ver Último Resguardo</a>
+            <a href="{{ route('surveys.last_receipt') }}" class="btn-volver">Ver Último Resguardo</a>
         </div>
 
     </div>

@@ -297,15 +297,12 @@
         inputDNI.addEventListener("input", (e) => {
             // 1. Obtenemos el valor y eliminamos caracteres no deseados
             let valor = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, "");
-
             // 2. Separamos: máximo 8 números y máximo 1 letra
             let numeros = valor.replace(/[^0-9]/g, "").slice(0, 8);
             let letra = valor.replace(/[^A-Z]/g, "").slice(0, 1);
-
             // 3. Reconstruimos el valor en el orden correcto
             let res = numeros + letra;
             inputDNI.value = res;
-
             // 4. Lógica de feedback visual
             barraDNI.style.width = (res.length / 9) * 100 + "%";
 

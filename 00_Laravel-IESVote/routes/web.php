@@ -5,7 +5,6 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\ProfileController;
 
-
 // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 // [IMPORTANT] VISTAS PÚBLICAS Y ACCESOS INICIALES
 // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
@@ -23,26 +22,31 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/login/verificar-elector', [AuthController::class, 'verificarElector'])->name('login.verificar');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-// [IMPORTANT] ENCUESTAS Y LÓGICA DE VOTACIÓN
-// ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+// ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+// [IMPORTANT] RUTAS PROTEGIDAS (Requieren autenticación)
+// ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 
-Route::get('/surveys', [SurveyController::class, 'index'])->name('surveys');
-Route::post('/surveys/vote', [SurveyController::class, 'vote'])->name('surveys.vote');
-Route::get('/surveys/receipt', [SurveyController::class, 'receipt'])->name('surveys.receipt');
+Route::middleware(['auth'])->group(function () {
 
-// ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-// [IMPORTANT] PERFIL E HISTORIAL
-// ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+    // [GROUP] ENCUESTAS Y LÓGICA DE VOTACIÓN
+    Route::get('/surveys', [SurveyController::class, 'index'])->name('surveys');
+    Route::post('/surveys/vote', [SurveyController::class, 'vote'])->name('surveys.vote');
+    Route::get('/surveys/receipt', [SurveyController::class, 'receipt'])->name('surveys.receipt');
+    Route::get('/surveys/receipt/last', [SurveyController::class, 'showLastReceipt'])->name('surveys.last_receipt');
 
-Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
-Route::get('/history', [ProfileController::class, 'history'])->name('history');
+    // [GROUP] PERFIL E HISTORIAL
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::get('/history', [ProfileController::class, 'history'])->name('history');
 
-// ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-// [IMPORTANT] PANEL DE ADMINISTRACIÓN (Acceso restringido)
-// ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+    // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+    // [IMPORTANT] PANEL DE ADMINISTRACIÓN (Acceso restringido a ADMIN)
+    // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 
-Route::get('/administration', [SurveyController::class, 'adminIndex'])->name('administration');
-Route::post('/surveys', [SurveyController::class, 'store'])->name('surveys.store');
-Route::post('/surveys/{survey}/toggle', [SurveyController::class, 'toggle'])->name('surveys.toggle');
-Route::delete('/surveys/{survey}', [SurveyController::class, 'destroy'])->name('surveys.destroy');
+    // Aquí el middleware 'admin' verifica que el usuario sea administrador
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/administration', [SurveyController::class, 'adminIndex'])->name('administration');
+        Route::post('/surveys', [SurveyController::class, 'store'])->name('surveys.store');
+        Route::post('/surveys/{survey}/toggle', [SurveyController::class, 'toggle'])->name('surveys.toggle');
+        Route::delete('/surveys/{survey}', [SurveyController::class, 'destroy'])->name('surveys.destroy');
+    });
+});

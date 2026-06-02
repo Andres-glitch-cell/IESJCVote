@@ -16,6 +16,8 @@
             --muted: rgba(255, 255, 255, .55);
             --success: #2ecc71;
             --warning: #ff4757;
+            --amber: #f1c40f;
+            /* Color amarillo definido */
         }
 
         * {
@@ -46,7 +48,6 @@
             text-align: center;
         }
 
-        /* Estilos ocultos por defecto que solo aparecen al imprimir */
         .print-header,
         .print-footer {
             display: none;
@@ -70,10 +71,11 @@
             margin-bottom: 8px;
         }
 
+        /* Estilo amarillo */
         .important-alert {
-            background: rgba(255, 71, 87, 0.15);
-            border: 1px solid rgba(255, 71, 87, 0.4);
-            color: #ff6b7a;
+            background: rgba(241, 196, 15, 0.15);
+            border: 1px solid rgba(241, 196, 15, 0.4);
+            color: var(--amber);
             padding: 12px 20px;
             border-radius: 10px;
             font-weight: 600;
@@ -129,7 +131,7 @@
         }
 
         .warning-text {
-            color: var(--warning);
+            color: var(--amber);
             font-size: 13px;
             margin-top: 8px;
             font-weight: 500;
@@ -158,7 +160,6 @@
             font-size: 13.5px;
         }
 
-        /* SVG Styles */
         .success-svg {
             width: 32px;
             height: 32px;
@@ -168,9 +169,10 @@
         .warning-svg {
             width: 24px;
             height: 24px;
-            fill: #ff6b7a;
+            fill: var(--amber);
         }
 
+        /* Icono ahora es ámbar */
         .print-svg {
             width: 20px;
             height: 20px;
@@ -185,7 +187,6 @@
                 padding-bottom: 50px;
             }
 
-            /* Cabecera y Pie fijos */
             .print-header,
             .print-footer {
                 display: block !important;
@@ -212,7 +213,6 @@
                 padding: 0 40px;
             }
 
-            /* Escala de grises y forzado de negro */
             body,
             .receipt-container,
             h1,
@@ -257,7 +257,6 @@
 </head>
 
 <body>
-
     <div class="print-header">IESJC · Sistema de Votación Segura</div>
 
     <div class="receipt-container">
@@ -282,10 +281,10 @@
 
         <div class="data-box">
             <div class="label">Proceso Electoral</div>
-            <div class="value">{{ session('titulo_encuesta') }}</div>
+            <div class="value">{{ $titulo_encuesta ?? session('titulo_encuesta') }}</div>
 
             <div class="label">CÓDIGO DE RESGUARDO ÚNICO</div>
-            <div class="hash-code">{{ session('codigo_resguardo') }}</div>
+            <div class="hash-code">{{ $codigo_resguardo ?? session('codigo_resguardo') }}</div>
             <p class="warning-text">¡ Se le recomienda GUARDAR este código en un lugar SEGURO !</p>
         </div>
 
@@ -304,7 +303,6 @@
         <div>Propietario derechos de Autor: Andrés Fernández Salaud</div>
         <div>{{ now()->format('d/m/Y H:i') }}</div>
     </div>
-
 </body>
 
 </html>
