@@ -139,6 +139,13 @@
             display: none;
         }
 
+        .error-server {
+            font-size: 12px;
+            color: #ff6b6b;
+            margin-top: 6px;
+            display: block;
+        }
+
         .footer {
             text-align: center;
             margin-top: 18px;
@@ -146,10 +153,14 @@
             color: rgba(255, 255, 255, .35);
         }
 
-        .divider {
-            height: 1px;
-            margin: 18px 0;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .1), transparent);
+        .footer a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
         }
 
         @keyframes shake {
@@ -202,19 +213,30 @@
     <div class="contenedor">
 
         <div class="cabecera">
-            <div class="kicker">IES JC · Acceso</div>
+            <div class="kicker">IES JC · Registro</div>
             <div class="titulo">Votación digital</div>
             <div class="subtitulo">Acceso seguro verificado</div>
         </div>
 
         <div class="card" id="card">
 
-            <form id="form" method="POST" action="{{ route('register') }}">
+            @if (session('error'))
+                <div class="error-server" style="margin-bottom: 14px; text-align: center;">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <!-- [CORREGIDO] Cambiado de route('register') a route('register.post') para apuntar al proceso del web.php -->
+            <form id="form" method="POST" action="{{ route('register.post') }}">
                 @csrf
                 <div class="campo">
                     <label>Usuario</label>
-                    <input id="nombre" name="nombre" type="text" placeholder="Ej: Juan">
+                    <input id="nombre" name="nombre" type="text" placeholder="Ej: Juan"
+                        value="{{ old('nombre') }}">
                     <div class="error" id="errNombre"></div>
+                    @error('nombre')
+                        <div class="error-server">{{ $message }}</div>
+                    @enderror
                     <div class="barra-container">
                         <div class="barra" id="barraNombre"></div>
                     </div>
@@ -223,33 +245,23 @@
 
                 <div class="campo">
                     <label>DNI</label>
-                    <input id="dni" name="dni" type="text" maxlength="9" placeholder="12345678A">
+                    <input id="dni" name="dni" type="text" maxlength="9" placeholder="12345678A"
+                        value="{{ old('dni') }}">
                     <div class="error" id="errDni"></div>
+                    @error('dni')
+                        <div class="error-server">{{ $message }}</div>
+                    @enderror
                     <div class="barra-container">
                         <div class="barra" id="barraDNI"></div>
                     </div>
                     <div class="contador" id="contadorDNI"></div>
                 </div>
 
-                <div class="campo">
-                    <label>Contraseña Administrador <span
-                            style="font-weight:normal; opacity:0.6;">(opcional)</span></label>
-                    <input type="password" id="contraseñaAdministrador" name="password_admin"
-                        placeholder="Solo para administradores...">
-
-                    <div class="barra-container">
-                        <div class="barra" id="barraContraseñaAdministrador"></div>
-                    </div>
-                    <div class="contador" id="contadorContraseñaAdministrador"></div>
-                    <div class="error" id="errContraseñaAdministrador"></div>
-                </div>
-
                 <button type="submit">Regístrese</button>
             </form>
             <div class="footer">
-                Sesión protegida - <a href="{{ route('login') }}">Ya tiene cuenta, Inicie Sesión!</a>
+                Sesión protegida - <a href="{{ route('home') }}">Ya tiene cuenta, Inicie Sesión!</a>
             </div>
-
 
         </div>
     </div>
@@ -333,35 +345,7 @@
             }
         });
 
-        // CONTRASEÑA ADMINISTRADOR (opcional)
-        const inputContraseñaAdmin = document.getElementById("contraseñaAdministrador");
-        const barraContraseña = document.getElementById("barraContraseñaAdministrador");
-        const contadorContraseña = document.getElementById("contadorContraseñaAdministrador");
-
-        const MAX = 13;
-        inputContraseñaAdmin.addEventListener("input", () => {
-            let len = inputContraseñaAdmin.value.length;
-            if (len > MAX) {
-                inputContraseñaAdmin.value = inputContraseñaAdmin.value.slice(0, MAX);
-                len = MAX;
-            }
-
-            const porcentaje = (len / MAX) * 100;
-            barraContraseña.style.width = porcentaje + "%";
-
-            if (len === 0) {
-                contadorContraseña.textContent = "";
-                barraContraseña.style.background = "rgba(255,255,255,0.9)";
-            } else if (inputContraseñaAdmin.value === "IESJCVote2026") {
-                contadorContraseña.textContent = "Contraseña correcta";
-                barraContraseña.style.background = "#4caf50";
-            } else {
-                contadorContraseña.textContent = "Contraseña incorrecta";
-                barraContraseña.style.background = "#ff6b6b";
-            }
-        });
-
-        // SUBMIT - Validación corregida
+        // SUBMIT - Validación
         const form = document.getElementById("form");
         const card = document.getElementById("card");
 
@@ -375,18 +359,12 @@
 
             const nombre = document.getElementById("nombre").value.trim();
             const dni = document.getElementById("dni").value.trim();
-            const passwordAdmin = document.getElementById("contraseñaAdministrador").value.trim();
-
             const errNombre = document.getElementById("errNombre");
             const errDni = document.getElementById("errDni");
-            const errPassword = document.getElementById("errContraseñaAdministrador");
 
-            // Resetear errores
             errNombre.style.display = "none";
             errDni.style.display = "none";
-            errPassword.style.display = "none";
 
-            // Validar Nombre
             if (nombre === "") {
                 errNombre.textContent = "Campo nombre vacío";
                 errNombre.style.display = "block";
@@ -400,7 +378,6 @@
                 return;
             }
 
-            // Validar DNI
             if (dni === "") {
                 errDni.textContent = "Campo DNI vacío";
                 errDni.style.display = "block";
@@ -414,17 +391,6 @@
                 return;
             }
 
-            // Validar Contraseña SOLO si se escribió algo
-            if (passwordAdmin !== "") {
-                if (passwordAdmin !== "IESJCVote2026") {
-                    errPassword.textContent = "Contraseña de administrador incorrecta";
-                    errPassword.style.display = "block";
-                    shake();
-                    return;
-                }
-            }
-
-            // Todo correcto → enviar al servidor
             form.submit();
         });
     </script>

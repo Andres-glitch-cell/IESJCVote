@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Ejercicios del DOM</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            background-color: grey;
+            color: white;
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        .ejercicio {
+            background-color: #333;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .modo-oscuro {
+            background-color: #111 !important;
+            color: #ffeb3b;
+        }
+
+        .oculto {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Prácticas del DOM (De menor a mayor dificultad)</h1>
+
+    <!-- =======================================================================
+         1. NIVEL BÁSICO: SELECCIÓN Y MODIFICACIÓN SIMPLE
+         ======================================================================= -->
+
+    <!-- Enunciado 1: Selecciona el párrafo por su ID y cambia su texto a "¡Bienvenido a mi sitio web!" -->
+    <div class="ejercicio">
+        <h3>Ejercicio 1: Cambiar Texto</h3>
+        <p id="texto-bienvenida">Texto original que desaparecerá...</p>
+    </div>
+
+    <!-- Enunciado 2: Encuentra el botón con la clase .btn-alerta y ponle fondo rojo con texto blanco -->
+    <div class="ejercicio">
+        <h3>Ejercicio 2: Modificar Estilos</h3>
+        <button class="btn-alerta">Botón de Alerta</button>
+    </div>
+
+    <!-- Enunciado 3: Selecciona la imagen y cámbiale el atributo src por una ruta válida -->
+    <div class="ejercicio">
+        <h3>Ejercicio 3: Cambiar Atributos</h3>
+        <img id="imagen-dinamica" src="" alt="Placeholder de prueba" width="150">
+    </div>
+
+
+    <!-- =======================================================================
+         2. NIVEL INTERMEDIO: EVENTOS Y CREACIÓN DE ELEMENTOS
+         ======================================================================= -->
+
+    <!-- Enunciado 4: Haz que al hacer clic en este botón salte un alert() que diga "¡Hiciste clic!" -->
+    <div class="ejercicio">
+        <h3>Ejercicio 4: El clic del usuario</h3>
+        <button id="btn-clickme">¡Hazme clic!</button>
+    </div>
+
+    <!-- Enunciado 5: Al hacer clic en "Agregar", crea un <li> con el texto "Nuevo elemento" e insértalo en la <ul> -->
+    <div class="ejercicio">
+        <h3>Ejercicio 5: Crear e insertar elementos</h3>
+        <button id="btn-agregar">Agregar elemento a la lista</button>
+        <ul id="lista-dinamica">
+            <li>Elemento base fijo</li>
+        </ul>
+    </div>
+
+    <!-- =======================================================================
+         3. NIVEL AVANZADO: FORMULARIOS Y RECORRIDO DEL DOM
+         ======================================================================= -->
+
+    <!-- Enunciado 7: Captura el envío del formulario, evita que recargue la página, lee el input y muéstralo en el párrafo vacío -->
+    <div class="ejercicio">
+        <h3>Ejercicio 7: Captura de formulario</h3>
+        <form id="mi-formulario">
+            <input type="text" id="input-texto" placeholder="Escribe algo aquí...">
+            <button type="submit">Enviar</button>
+        </form>
+        <p id="resultado-formulario"></p>
+    </div>
+
+    <!-- Enunciado 8: Al hacer clic en "Eliminar", selecciona el elemento padre directo (el contenedor .tarjeta-producto) y bórralo del DOM -->
+    <div class="ejercicio">
+        <h3>Ejercicio 8: Moverse por el árbol (Parent/Remove)</h3>
+        <div class="tarjeta-producto" style="border: 1px solid white; padding: 10px; margin-bottom: 5px;">
+            <span>Producto 1 - Laptop</span>
+            <button class="btn-eliminar">Eliminar este producto</button>
+        </div>
+        <div class="tarjeta-producto" style="border: 1px solid white; padding: 10px;">
+            <span>Producto 2 - Teclado</span>
+            <button class="btn-eliminar">Eliminar este producto</button>
+        </div>
+    </div>
+
+    <!-- Enunciado 9: Mientras el usuario escribe, si tiene menos de 8 caracteres pon el borde rojo, si tiene 8 o más, verde -->
+    <div class="ejercicio">
+        <h3>Ejercicio 9: Validación en tiempo real</h3>
+        <label for="pass">Contraseña (mínimo 8 carac.):</label>
+        <input type="password" id="pass" style="border: 2px solid white; padding: 5px;">
+    </div>
+
+
+    <!-- =======================================================================
+         4. NIVEL EXPERTO: DELEGACIÓN DE EVENTOS Y OPTIMIZACIÓN
+         ======================================================================= -->
+
+    <!-- Enunciado 10: Asigna un único evento de clic al contenedor PADRE (#contenedor-padre) que detecte en qué botón hijo se hizo clic -->
+    <div class="ejercicio">
+        <h3>Ejercicio 10: Delegación de eventos</h3>
+        <div id="contenedor-padre" style="background: #444; padding: 10px;">
+            <button class="btn-hijo">Hijo 1</button>
+            <button class="btn-hijo">Hijo 2</button>
+            <button class="btn-hijo">Hijo 3</button>
+        </div>
+    </div>
+
+
+    <!-- Enunciado 11: A medida que el usuario escribe en el buscador, oculta los elementos de la lista que no coincidan con el texto -->
+    <div class="ejercicio">
+        <h3>Ejercicio 12: Buscador interactivo / Filtro</h3>
+        <input type="text" id="buscador" placeholder="Buscar fruta...">
+        <ul id="lista-frutas">
+            <li>Manzana</li>
+            <li>Plátano</li>
+            <li>Fresa</li>
+            <li>Naranja</li>
+            <li>Kiwi</li>
+        </ul>
+    </div>
+
+
+    <!-- =======================================================================
+         ZONA DE JAVASCRIPT
+         ======================================================================= -->
+    <script>
+        // ! Ejercicio 1:
+        let elementoIDTextoBienvenida = document.getElementById("texto-bienvenida")
+        elementoIDTextoBienvenida.textContent = "Bienvenido a mi sitio web !"
+
+        // ! Ejercicio 2:
+        let elementoBoton = document.getElementsByClassName("btn-alerta")
+        elementoBoton[0].addEventListener("click", () => {
+            elementoBoton[0].style.backgroundColor = "red"
+            elementoBoton[0].style.color = "white"
+        })
+
+        // ! Ejercicio 3:
+        let cambiarAtributoImagen = document.getElementById("imagen-dinamica")
+        cambiarAtributoImagen.setAttribute("src", "https://i.pinimg.com/736x/8e/4c/7a/8e4c7aa02a6ce03aca2236821b0732ea.jpg")
+
+        // ! Ejercicio 4:
+        let elementoBotonEvento = document.getElementById("btn-clickme")
+        elementoBotonEvento.addEventListener("click", () => {
+            alert("Hiciste click !")
+        })
+
+        // ! Ejercicio 5:
+        let elementoBotonAñadir = document.getElementById("btn-agregar")
+        let listaDinamica = document.getElementById("lista-dinamica");
+        elementoBotonAñadir.addEventListener("click", () => {
+            let añadirLI = document.createElement("li");
+            let contenidoLI = document.createTextNode("Nuevo elemento");
+            añadirLI.appendChild(contenidoLI);
+            listaDinamica.appendChild(añadirLI);
+        })
+
+        // ! Ejercicio 7:
+        let elementoFormulario = document.getElementById("mi-formulario")
+        let elementoInputTexto = document.getElementById("input-texto")
+        elementoFormulario.addEventListener("submit", (e) => {
+            e.preventDefault();
+            let elementoInputTextoValor = elementoInputTexto.value
+            let elementoResultadoFormulario = document.getElementById("resultado-formulario")
+            elementoResultadoFormulario.textContent = elementoInputTextoValor
+        })
+
+        // ! Ejercicio 8:
+        let elementoEliminarBoton = document.getElementsByClassName("btn-eliminar")
+        for (let i = 0; i < elementoEliminarBoton.length; i++) {
+            elementoEliminarBoton[i].addEventListener("click", (e) => {
+                let botonPulsado = e.target
+                let contenedorPadre = botonPulsado.parentElement
+                contenedorPadre.remove()
+            })
+        }
+    </script>
+</body>
+
+</html>
