@@ -57,6 +57,29 @@ class AuthController extends Controller
         return redirect()->intended(route('surveys'));
     }
 
+    public function verificarElector(Request $request)
+    {
+        $request->validate([
+            'nombre' => 'required|string',
+            'dni' => ['required', 'regex:/^\d{8}[A-Z]$/'],
+        ]);
+
+        $dni = strtoupper(trim($request->dni));
+        $user = User::where('dni', $dni)->first();
+
+        if (!$user || strcasecmp($user->name, trim($request->nombre)) !== 0) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Nombre o DNI incorrectos.',
+            ], 422);
+        }
+
+        return response()->json([
+            'valid' => true,
+            'message' => 'Elector verificado.',
+        ]);
+    }
+
     public function logout(Request $request)
     {
         Auth::logout();
