@@ -4,19 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Survey;
 use App\Models\Option;
-use App\Models\User;
 use App\Models\VoteRecorded;
 use Illuminate\Http\Request;
 
 class SurveyController extends Controller
 {
+    // Refactoriza esto para usar el sistema oficial de Auth
     private function ensureAdmin()
     {
-        if (!session()->has('user_id'))
-            return redirect()->route('login');
-        $user = User::find(session('user_id'));
+        // En lugar de sesiones manuales, usa el guard de Laravel
+        $user = auth()->user();
+
         if (!$user || !$user->is_admin)
             return false;
+
         return $user;
     }
 
@@ -100,7 +101,7 @@ class SurveyController extends Controller
         }
 
         // CORRECTO: Envía el título para el mensaje de éxito
-        return redirect()->route('admin.index')->with('success', $titulo);
+        return redirect()->route('administration')->with('success', $titulo);
     }
 
     public function toggle(Survey $survey)
@@ -119,8 +120,8 @@ class SurveyController extends Controller
 
         $survey->delete();
 
-        // CORRECTO: Envía flag para mensaje de eliminada
-        return redirect()->route('admin.index')->with('deleted', 'true');
+        // [SOLUCIÓN]: Cambia 'admin.index' por 'administration'
+        return redirect()->route('administration')->with('deleted', 'true');
     }
 
     public function showLastReceipt()

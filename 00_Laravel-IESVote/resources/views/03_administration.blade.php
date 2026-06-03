@@ -331,7 +331,7 @@
                     <button type="button" id="btn-add-opcion" style="margin-top:12px;">Añadir Opción</button>
                 </div>
 
-                <button type="submit" class="btn-primario">Publicar e Iniciar Votación</button>
+                <button type="submit" class="btn-primario">Publicar Encuesta</button>
             </form>
 
             <!-- Información del Sistema -->
