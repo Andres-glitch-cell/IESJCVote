@@ -50,3 +50,12 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/surveys/{survey}', [SurveyController::class, 'destroy'])->name('surveys.destroy');
     });
 });
+
+// DEBUG TEMPORAL - borra después
+Route::get('/test-auth', function () {
+    return response()->json([
+        'auth' => auth()->check(),
+        'user' => auth()->user(),
+        'session' => session()->all(),
+    ]);
+});

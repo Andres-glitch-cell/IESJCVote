@@ -9,36 +9,18 @@ use Illuminate\Http\Request;
 
 class SurveyController extends Controller
 {
-    // Refactoriza esto para usar el sistema oficial de Auth
-    private function ensureAdmin()
-    {
-        // En lugar de sesiones manuales, usa el guard de Laravel
-        $user = auth()->user();
-
-        if (!$user || !$user->is_admin)
-            return false;
-
-        return $user;
-    }
-
     public function index()
     {
-        if (!session()->has('user_id'))
-            return redirect()->route('login')->with('error', 'Debes iniciar sesión.');
         $surveys = Survey::where('is_active', true)->with('options')->latest()->get();
         return view('02_surveys', compact('surveys'));
     }
 
     public function vote(Request $request)
     {
-        if (!session()->has('user_id'))
-            return redirect()->route('login');
-
         $request->validate(['option_id' => 'required|exists:options,id']);
         $option = Option::with('survey')->findOrFail($request->option_id);
-        $userId = session('user_id');
+        $userId = auth()->id();
 
-        // CORRECCIÓN: Evitar duplicados (Soluciona el error 500)
         $exists = VoteRecorded::where('user_id', $userId)
             ->where('survey_id', $option->survey_id)
             ->exists();
@@ -71,17 +53,12 @@ class SurveyController extends Controller
 
     public function adminIndex()
     {
-        if (!$user = $this->ensureAdmin())
-            return redirect()->route('surveys')->with('error', 'No autorizado.');
         $surveys = Survey::with('options')->latest()->get();
         return view('03_administration', compact('surveys'));
     }
 
     public function store(Request $request)
     {
-        if (!$user = $this->ensureAdmin())
-            return redirect()->route('surveys')->with('error', 'No autorizado.');
-
         $request->validate([
             'title' => 'required|string|max:255',
             'options' => 'required|array|min:2',
@@ -100,14 +77,11 @@ class SurveyController extends Controller
             Option::create(['survey_id' => $survey->id, 'option_text' => $texto]);
         }
 
-        // CORRECTO: Envía el título para el mensaje de éxito
         return redirect()->route('administration')->with('success', $titulo);
     }
 
     public function toggle(Survey $survey)
     {
-        if (!$user = $this->ensureAdmin())
-            return back()->with('error', 'No autorizado.');
         $survey->update(['is_active' => !$survey->is_active]);
         $estado = $survey->is_active ? 'activada' : 'desactivada';
         return back()->with('success_message', "La encuesta ha sido {$estado}.");
@@ -115,21 +89,13 @@ class SurveyController extends Controller
 
     public function destroy(Survey $survey)
     {
-        if (!$user = $this->ensureAdmin())
-            return back()->with('error', 'No autorizado.');
-
         $survey->delete();
-
-        // [SOLUCIÓN]: Cambia 'admin.index' por 'administration'
         return redirect()->route('administration')->with('deleted', 'true');
     }
 
     public function showLastReceipt()
     {
-        if (!session()->has('user_id'))
-            return redirect()->route('login');
-
-        $lastVote = VoteRecorded::where('user_id', session('user_id'))->with('survey')->latest()->first();
+        $lastVote = VoteRecorded::where('user_id', auth()->id())->with('survey')->latest()->first();
 
         if (!$lastVote)
             return redirect()->route('surveys')->with('error', 'No se encontró ningún voto.');

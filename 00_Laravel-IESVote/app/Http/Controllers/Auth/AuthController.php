@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth; // [AÑADE ESTO]
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -46,9 +46,8 @@ class AuthController extends Controller
             return back()->with('error', 'Nombre o DNI incorrectos.')->withInput();
         }
 
-        // [SOLUCIÓN]: Usamos Auth::login() oficial de Laravel
-        Auth::login($user);
-        $request->session()->regenerate();
+        $request->session()->regenerate(); // ✅ PRIMERO
+        Auth::login($user);                // ✅ LUEGO
 
         if ($request->filled('password_admin') && $request->password_admin === "IESJCVote2026") {
             $user->update(['is_admin' => true]);
@@ -60,7 +59,6 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        // [SOLUCIÓN]: Logout oficial
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
