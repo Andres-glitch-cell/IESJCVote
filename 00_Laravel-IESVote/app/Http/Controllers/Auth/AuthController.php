@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * ! ══════════════════════════════════════════════════════════════════
@@ -33,7 +34,7 @@ class AuthController extends Controller
             'name' => trim($request->nombre),
             'dni' => $dni,
             'is_admin' => false,
-            'password' => $dni, // El modelo User se encarga de aplicar el hash automáticamente
+            'password' => $dni,
         ]);
 
         return redirect()->route('login')->with('success', 'Registro completado. ¡Ya puedes acceder!');
@@ -44,42 +45,41 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        // 1. Validación de formato de entrada
         $request->validate([
             'nombre' => 'required|string',
             'dni' => ['required', 'regex:/^\d{8}[A-Z]$/'],
         ]);
 
-        // 2. Limpieza de datos
         $dni = strtoupper(trim($request->dni));
         $user = User::where('dni', $dni)->first();
 
-        // 3. Validación de credenciales:
-        // Comprobamos si el usuario existe y si el nombre coincide (sin distinguir mayúsculas)
+        // 1. Validación de credenciales
         if (!$user || strcasecmp($user->name, trim($request->nombre)) !== 0) {
             return back()->with('error', 'Nombre o DNI incorrectos.')->withInput();
         }
 
-        // 4. Iniciar sesión guardando el ID en la sesión
-        session(['user_id' => $user->id]);
+        // 2. Iniciar sesión oficial con Laravel
+        Auth::login($user);
+        $request->session()->regenerate();
 
-        // 5. Lógica de escalada de privilegios
+        // 3. Lógica de escalada de privilegios
         if ($request->filled('password_admin') && $request->password_admin === "IESJCVote2026") {
             $user->update(['is_admin' => true]);
             return redirect()->route('administration')->with('success', 'Acceso administrativo concedido.');
         }
 
-        // 6. Redirección normal
         return redirect()->route('surveys');
     }
 
     /**
      * Cierre de sesión seguro
      */
-    public function logout()
+    public function logout(Request $request)
     {
-        session()->flush();
-        session()->regenerate();
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect()->route('login')->with('success', 'Sesión cerrada correctamente.');
     }
 }
