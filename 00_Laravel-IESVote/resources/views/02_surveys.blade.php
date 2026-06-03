@@ -260,14 +260,7 @@
                 <div class="card-encuesta">
                     <h2 class="titulo-encuesta">{{ $survey->title }}</h2>
 
-                    {{-- REQUISITO PUNTO 2: Verificar si el alumno en sesión ya votó en esta encuesta --}}
-                    @php
-                        $yaVoto = \App\Models\VoteRecorded::where('user_id', session('user_id'))
-                            ->where('survey_id', $survey->id)
-                            ->exists();
-                    @endphp
-
-                    @if ($yaVoto)
+                    @if (in_array($survey->id, $votedSurveys))
                         {{-- Muestra el bloqueo visual en lugar del formulario si ya participó --}}
                         <div class="voto-registrado-box">
                             <span class="voto-registrado-tag">✓ PARTICIPACIÓN REGISTRADA</span>

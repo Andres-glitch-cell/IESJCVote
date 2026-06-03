@@ -11,8 +11,16 @@ class SurveyController extends Controller
 {
     public function index()
     {
-        $surveys = Survey::where('is_active', true)->with('options')->latest()->get();
-        return view('02_surveys', compact('surveys'));
+        $surveys = Survey::where('is_active', true)
+            ->with('options')
+            ->latest()
+            ->get();
+
+        $votedSurveys = VoteRecorded::where('user_id', auth()->id())
+            ->pluck('survey_id')
+            ->toArray();
+
+        return view('02_surveys', compact('surveys', 'votedSurveys'));
     }
 
     public function vote(Request $request)
