@@ -1,44 +1,81 @@
-# 🗳️ IESJCVote - Sistema de Votaciones Digitales
+# 🗳️ IESJCVote — Sistema de Votaciones Digitales
 
-**IESJCVote** es una aplicación web moderna diseñada para gestionar procesos de votación de forma ágil y segura. Este proyecto ha sido desarrollado como **Proyecto de Final de Curso (FCT)** para el **IES Joan Coromines**.
-
-La plataforma permite a los usuarios participar en encuestas y ver resultados en tiempo real, combinando una arquitectura de servidor sólida con una interfaz dinámica e interactiva.
+**IESJCVote** es una aplicación web desarrollada como **Proyecto de Final de Curso (FCT)** para el **IES Joan Coromines**. Permite gestionar procesos de votación digital de forma segura, con panel de administración, registro de votos y resguardos individuales por elector.
 
 ---
 
-## 🚀 Tecnologías Utilizadas
+## 🚀 Stack Tecnológico
 
-Para este proyecto se ha seleccionado un stack tecnológico profesional:
-
-* **Backend:** PHP 8.x con el framework **Laravel 11**.
-* **Frontend:** **JavaScript (ES6+)** para la lógica de cliente y **jQuery** para peticiones AJAX.
-* **Diseño:** **Tailwind CSS** o **Bootstrap** para una interfaz responsiva.
-* **Base de Datos:** **MySQL** (Relacional).
-* **Gráficos:** **Chart.js** para visualizar los votos en tiempo real.
-
----
-
-## ✨ Funcionalidades Principales
-
-* ✅ **Creación de Encuestas:** Panel de administración dinámico para gestionar preguntas y opciones.
-* ✅ **Votación Asíncrona:** Registro de votos sin recargar la página mediante AJAX/jQuery.
-* ✅ **Resultados Live:** Gráficos estadísticos que se actualizan automáticamente.
-* ✅ **Seguridad:** Protección CSRF de Laravel y validación de integridad de datos.
-* ✅ **Multiplataforma:** Diseño optimizado para cualquier dispositivo.
+| Capa | Tecnología |
+|---|---|
+| Backend | PHP 8.5 + Laravel 12 |
+| Frontend | JavaScript ES6+ vanilla |
+| Estilos | CSS custom (sin framework) |
+| Base de datos | MySQL 8 |
+| Autenticación | Laravel Auth (guards + middleware) |
 
 ---
 
-## 🛠️ Instalación y Configuración (Windows)
+## ✨ Funcionalidades
 
-Sigue estos pasos para configurar el proyecto con **MySQL**:
+- 🔐 **Registro e inicio de sesión** por nombre y DNI
+- 🗳️ **Votación en encuestas activas** con protección anti-duplicado
+- 🧾 **Resguardo de voto** con hash único por participante
+- 📊 **Panel de administración** para crear, activar/desactivar y eliminar encuestas
+- 🛡️ **Protección CSRF** y validación de datos en servidor
+- 👤 **Perfil e historial** de votaciones por usuario
 
-1. **Clonar el repositorio:**
-   ⌨️ Atajo: `Win + R` > `cmd`
-   ```cmd
-   git clone [https://github.com/Andres-glitch-cell/IESJCVote.git](https://github.com/Andres-glitch-cell/IESJCVote.git)
-   cd IESJCVote
-   ```
-   
-# Notaciones que entregar para la Entrega de la Base de Datos
-## 1. Entidad Relación
-## 2. Paso a tablas
+---
+
+## 🛠️ Instalación en Windows
+
+### Requisitos previos
+- PHP 8.5+
+- Composer
+- MySQL 8
+- Git
+
+### Pasos
+
+**1. Clonar el repositorio**
+```bash
+git clone https://github.com/Andres-glitch-cell/IESJCVote.git
+cd IESJCVote/00_Laravel-IESVote
+```
+
+**2. Instalar dependencias**
+```bash
+composer install
+```
+
+**3. Configurar el entorno**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+**4. Editar `.env` con tus datos de base de datos**
+```properties
+DB_DATABASE=IESJCVote-db
+DB_USERNAME=tu_usuario
+DB_PASSWORD=tu_contraseña
+SESSION_DRIVER=file
+```
+
+**5. Ejecutar migraciones**
+```bash
+php artisan migrate
+```
+
+**6. Arrancar el servidor**
+```bash
+php artisan serve
+```
+
+Abre `http://127.0.0.1:8000` en el navegador.
+
+---
+
+## 🗂️ Estructura de la Base de Datos
+
+### Entidad — Relación
