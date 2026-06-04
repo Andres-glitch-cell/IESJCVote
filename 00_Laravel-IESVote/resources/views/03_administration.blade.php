@@ -382,7 +382,14 @@
     <!-- Modal de Eliminación -->
     <div id="deleteModal" class="modal">
         <div class="modal-content">
-            <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                style="margin-bottom: 20px;">
+                <path d="M12 2L2 20h20L12 2z" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"
+                    fill="rgba(245,158,11,0.15)" />
+                <line x1="12" y1="9" x2="12" y2="14" stroke="#f59e0b" stroke-width="2"
+                    stroke-linecap="round" />
+                <circle cx="12" cy="17" r="1" fill="#f59e0b" />
+            </svg>
             <div class="modal-title">¿Estás seguro?</div>
             <div class="modal-text" id="modalSurveyName"></div>
             <div class="modal-buttons">
@@ -393,35 +400,59 @@
     </div>
 
     <script>
+        // Esperamos a que todo el HTML de la página esté cargado antes de ejecutar el código
         $(document).ready(function() {
 
-            // Añadir opción
+            // ─── AÑADIR NUEVA OPCIÓN ──────────────────────────────────────────
+            // Cuando se hace click en el botón "Añadir Opción"...
             $("#btn-add-opcion").click(function() {
+
+                // ...creamos un bloque HTML con un input nuevo y un botón de eliminar
                 const nuevoBloque = `
-                    <div class="bloque-opcion">
-                        <input type="text" name="options[]" placeholder="Nueva opción" required>
-                        <button type="button" class="btn-eliminar" style="padding: 10px 15px;" onclick="$(this).parent().remove()">×</button>
-                    </div>`;
+                <div class="bloque-opcion">
+                    <input type="text" name="options[]" placeholder="Nueva opción" required>
+                    <!-- Al hacer click en ×, elimina el div padre (bloque-opcion) -->
+                    <button type="button" class="btn-eliminar" style="padding: 10px 15px;" onclick="$(this).parent().remove()">×</button>
+                </div>`;
+
+                // Añadimos ese bloque dentro del contenedor de opciones
                 $("#contenedor-opciones").append(nuevoBloque);
             });
 
-            // Modal de eliminación
+            // ─── MODAL DE ELIMINACIÓN ─────────────────────────────────────────
+            // Variable que guarda el ID de la encuesta que queremos eliminar
             let surveyIdToDelete = null;
 
+            // Función global que abre el modal (se llama desde el onclick del botón Eliminar)
             window.showDeleteModal = function(id, title) {
+
+                // Guardamos el ID de la encuesta para usarlo después al confirmar
                 surveyIdToDelete = id;
+
+                // Escribimos el mensaje del modal con el título de la encuesta en negrita
                 $("#modalSurveyName").html(
                     `Se eliminará permanentemente la encuesta <strong>"${title}"</strong>. Esta acción no se puede deshacer.`
                 );
-                $("#deleteModal").fadeIn(300);
+
+                // Mostramos el modal: primero forzamos display:flex (para centrar),
+                // luego lo ocultamos instantáneamente y después lo animamos con fadeIn
+                $("#deleteModal").css("display", "flex").hide().fadeIn(300);
             };
 
+            // Función global que cierra el modal con animación de desvanecimiento
             window.hideDeleteModal = function() {
                 $("#deleteModal").fadeOut(300);
             };
 
+            // ─── CONFIRMAR ELIMINACIÓN ────────────────────────────────────────
+            // Cuando se hace click en el botón "Sí, eliminar" del modal...
             $("#confirmDeleteBtn").click(function() {
+
+                // ...comprobamos que tenemos un ID guardado
                 if (surveyIdToDelete) {
+
+                    // Buscamos el formulario oculto correspondiente a esa encuesta
+                    // y lo enviamos, lo que ejecuta el DELETE en el servidor
                     $(`#delete-form-${surveyIdToDelete}`).submit();
                 }
             });

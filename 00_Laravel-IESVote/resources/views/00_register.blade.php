@@ -211,7 +211,6 @@
 <body>
 
     <div class="contenedor">
-
         <div class="cabecera">
             <div class="kicker">IES JC · Registro</div>
             <div class="titulo">Votación digital</div>
@@ -267,30 +266,47 @@
     </div>
 
     <script>
-        // BARRA NOMBRE
+        // ─── BARRA DE PROGRESO DEL NOMBRE ────────────────────────────────────────
+
+        // Obtenemos el input del nombre y le ponemos el foco automáticamente al cargar la página
         const inputNombre = document.getElementById("nombre");
         inputNombre.focus();
+
+        // Obtenemos la barra de progreso y el texto de estado del nombre
         const barraNombre = document.getElementById("barraNombre");
         const contadorNombre = document.getElementById("contadorNombre");
 
+        // Cada vez que el usuario escribe algo en el input de nombre...
         inputNombre.addEventListener("input", () => {
+
+            // Buscamos el elemento donde mostramos errores del nombre
             const errNombre = document.getElementById("errNombre");
+
+            // Si el nombre contiene caracteres que no son letras (ni acentos ni ñ)...
             if (!/^[a-zA-ZÁÉÍÓÚáéíóúÑñ]*$/.test(inputNombre.value)) {
                 errNombre.textContent = "Solo letras permitidas";
-                errNombre.style.display = "block";
+                errNombre.style.display = "block"; // mostramos el error
+
+                // Si tiene menos de 3 caracteres (pero al menos 1)...
             } else if (inputNombre.value.length > 0 && inputNombre.value.length < 3) {
                 errNombre.textContent = "Mínimo 3 caracteres";
-                errNombre.style.display = "block";
+                errNombre.style.display = "block"; // mostramos el error
+
+                // Si está bien, ocultamos cualquier error anterior
             } else {
                 errNombre.style.display = "none";
             }
 
+            // Cogemos la longitud actual del nombre
             let longitud = inputNombre.value.length;
+
+            // Si supera los 10 caracteres, lo cortamos a 10 (límite máximo)
             if (longitud > 10) {
                 inputNombre.value = inputNombre.value.slice(0, 10);
                 longitud = 10;
             }
 
+            // ** Calculamos el porcentaje de la barra (0% a 100% según longitud sobre 10)
             const porcentaje = (longitud / 10) * 100;
             barraNombre.style.width = porcentaje + "%";
 
@@ -310,67 +326,98 @@
             }
         });
 
-        // BARRA DNI
+        // ─── BARRA DE PROGRESO DEL DNI ───────────────────────────────────────────
+
+        // Obtenemos el input del DNI, su barra y su texto de estado
         const inputDNI = document.getElementById("dni");
         const barraDNI = document.getElementById("barraDNI");
         const contadorDNI = document.getElementById("contadorDNI");
 
+        // Cada vez que el usuario escribe algo en el input del DNI...
         inputDNI.addEventListener("input", () => {
+
+            // Convertimos todo a mayúsculas para facilitar la validación
             let valor = inputDNI.value.toUpperCase();
             let resultado = "";
+
+            // Recorremos cada carácter uno a uno para filtrar solo los válidos
             for (let i = 0; i < valor.length; i++) {
                 const char = valor[i];
+
+                // Las primeras 8 posiciones (0-7) solo aceptan números
                 if (i < 8 && char >= "0" && char <= "9") resultado += char;
+
+                // La posición 9 (índice 8) solo acepta una letra mayúscula
                 else if (i === 8 && char >= "A" && char <= "Z") resultado += char;
             }
+
+            // Nos aseguramos de que no supere los 9 caracteres en total
             resultado = resultado.slice(0, 9);
+
+            // Actualizamos el valor del input con el resultado filtrado
             inputDNI.value = resultado;
 
+            // Calculamos el porcentaje de la barra (0% a 100% según longitud sobre 9)
             const longitud = resultado.length;
             const porcentaje = (longitud / 9) * 100;
             barraDNI.style.width = porcentaje + "%";
 
+            // Comprobamos si el DNI completo tiene el formato correcto (8 números + 1 letra)
             const dniValido = /^\d{8}[A-Z]$/.test(resultado);
 
-            if (longitud === 0) contadorDNI.textContent = "";
+            // Actualizamos el texto y color según el estado del DNI
+            if (longitud === 0) contadorDNI.textContent = ""; // vacío: no mostramos nada
             else if (longitud < 9) {
                 contadorDNI.textContent = "DNI incompleto";
-                barraDNI.style.background = "#f7b731";
+                barraDNI.style.background = "#f7b731"; // naranja: faltan caracteres
             } else if (!dniValido) {
                 contadorDNI.textContent = "DNI inválido";
-                barraDNI.style.background = "#ff6b6b";
+                barraDNI.style.background = "#ff6b6b"; // rojo: formato incorrecto
             } else {
                 contadorDNI.textContent = "DNI correcto";
-                barraDNI.style.background = "#4caf50";
+                barraDNI.style.background = "#4caf50"; // verde: todo correcto
             }
         });
 
-        // SUBMIT - Validación
+        // ─── VALIDACIÓN AL ENVIAR EL FORMULARIO ──────────────────────────────────
+
+        // Obtenemos el formulario y la card (para el efecto de shake)
         const form = document.getElementById("form");
         const card = document.getElementById("card");
 
+        // Función que agita la card visualmente cuando hay un error
         const shake = () => {
             card.style.animation = "shake .3s";
-            setTimeout(() => card.style.animation = "", 300);
+            setTimeout(() => card.style.animation = "", 300); // quitamos la animación tras 300ms
         };
 
+        // Cuando el usuario intenta enviar el formulario...
         form.addEventListener("submit", e => {
+
+            // Bloqueamos el envío por defecto para validar primero
             e.preventDefault();
 
+            // Cogemos los valores actuales de nombre y DNI sin espacios al inicio/final
             const nombre = document.getElementById("nombre").value.trim();
             const dni = document.getElementById("dni").value.trim();
+
+            // Cogemos los elementos donde mostraremos los errores
             const errNombre = document.getElementById("errNombre");
             const errDni = document.getElementById("errDni");
 
+            // Ocultamos cualquier error previo antes de volver a validar
             errNombre.style.display = "none";
             errDni.style.display = "none";
 
+            // Si el nombre está vacío, mostramos error y agitamos la card
             if (nombre === "") {
                 errNombre.textContent = "Campo nombre vacío";
                 errNombre.style.display = "block";
                 shake();
-                return;
+                return; // paramos aquí, no seguimos validando
             }
+
+            // Si el nombre tiene menos de 3 caracteres, mostramos error
             if (nombre.length < 3) {
                 errNombre.textContent = "Mínimo 3 caracteres";
                 errNombre.style.display = "block";
@@ -378,12 +425,15 @@
                 return;
             }
 
+            // Si el DNI está vacío, mostramos error
             if (dni === "") {
                 errDni.textContent = "Campo DNI vacío";
                 errDni.style.display = "block";
                 shake();
                 return;
             }
+
+            // Si el DNI no tiene el formato correcto (8 números + 1 letra mayúscula), mostramos error
             if (!/^\d{8}[A-Z]$/.test(dni)) {
                 errDni.textContent = "Formato DNI inválido (12345678A)";
                 errDni.style.display = "block";
@@ -391,6 +441,7 @@
                 return;
             }
 
+            // Si todo está correcto, enviamos el formulario al servidor
             form.submit();
         });
     </script>

@@ -46,11 +46,13 @@ class AuthController extends Controller
             return back()->with('error', 'Nombre o DNI incorrectos.')->withInput();
         }
 
-        $request->session()->regenerate(); // ✅ PRIMERO
-        Auth::login($user);                // ✅ LUEGO
+        $request->session()->regenerate();
+        Auth::login($user);
 
         if ($request->filled('password_admin') && $request->password_admin === "IESJCVote2026") {
             $user->update(['is_admin' => true]);
+            $user->refresh();       // ✅ refresca modelo desde BD
+            Auth::login($user);     // ✅ actualiza sesión con is_admin = true
             return redirect()->route('administration')->with('success', 'Acceso administrativo.');
         }
 
