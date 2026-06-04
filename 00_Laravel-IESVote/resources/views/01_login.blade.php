@@ -265,8 +265,12 @@
                 {{-- Campo: Nombre de usuario --}}
                 <div class="campo">
                     <label>Usuario</label>
-                    <input id="nombre" name="nombre" type="text" placeholder="Ej: Juan"
-                        value="{{ old('nombre') }}" required>
+                    {{-- [CORREGIDO] Atributos id y name cambiados a 'username' para enrutar con el Backend --}}
+                    <input id="username" name="username" type="text" placeholder="Ej: Juan"
+                        value="{{ old('username') }}" required>
+                    @error('username')
+                        <div class="error-backend">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 {{-- Campo: DNI con barra de progreso --}}
@@ -309,6 +313,9 @@
 
     <script>
         // ─── REFERENCIAS A ELEMENTOS DEL DOM ─────────────────────────────────
+        // [CORREGIDO] Referencia cambiada al nuevo id 'username'
+        const inputNombre = document.getElementById("username");
+
         const inputDNI = document.getElementById("dni"),
             barraDNI = document.getElementById("barraDNI"),
             contadorDNI = document.getElementById("contadorDNI");
@@ -319,6 +326,16 @@
 
         const card = document.getElementById("card"),
             form = document.getElementById("form");
+
+        // Ponemos el foco automáticamente al cargar en el campo de usuario
+        inputNombre.focus();
+
+        // ─── FILTRO EN TIEMPO REAL PARA EL NOMBRE (SOLO LETRAS Y ESPACIOS) ───
+        inputNombre.addEventListener("input", (e) => {
+            // El regex elimina cualquier caracter que NO sea letra (mayúscula/minúscula), acento, eñe o espacio
+            let valorFiltrado = e.target.value.replace(/[^a-zA-ZÁÉÍÓÚáéíóúÑñ\s]/g, "");
+            e.target.value = valorFiltrado;
+        });
 
         // ─── ANIMACIÓN DE ERROR ───────────────────────────────────────────────
         const shake = () => {
@@ -331,27 +348,22 @@
 
         // ─── VALIDACIÓN EN TIEMPO REAL DEL DNI ───────────────────────────────
         inputDNI.addEventListener("input", (e) => {
-            // Limpiamos caracteres no válidos y ponemos en mayúsculas
             let valor = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, "");
-            // Separamos: máximo 8 números y máximo 1 letra
             let numeros = valor.replace(/[^0-9]/g, "").slice(0, 8);
             let letra = valor.replace(/[^A-Z]/g, "").slice(0, 1);
-            // Reconstruimos el valor en el orden correcto y lo aplicamos al input
             let res = numeros + letra;
             inputDNI.value = res;
 
-            // Actualizamos la barra de progreso
             barraDNI.style.width = (res.length / 9) * 100 + "%";
 
-            // Actualizamos el texto y color según el estado del DNI
             if (res.length === 9 && regexDNI.test(res)) {
                 contadorDNI.textContent = "Formato correcto";
-                barraDNI.style.background = "#4caf50"; // verde
+                barraDNI.style.background = "#4caf50";
             } else if (res.length > 0) {
                 contadorDNI.textContent = res.length < 9 ? "DNI incompleto" : "Formato: 8 números + 1 letra";
-                barraDNI.style.background = res.length < 9 ? "#f7b731" : "#ff6b6b"; // naranja o rojo
+                barraDNI.style.background = res.length < 9 ? "#f7b731" : "#ff6b6b";
             } else {
-                contadorDNI.textContent = ""; // vacío: no mostramos nada
+                contadorDNI.textContent = "";
             }
         });
 
@@ -359,20 +371,18 @@
         inputPassword.addEventListener("input", () => {
             const ok = inputPassword.value === "IESJCVote2026";
             barraPassword.style.width = "100%";
-            barraPassword.style.background = ok ? "#4caf50" : "#ff6b6b"; // verde o rojo
+            barraPassword.style.background = ok ? "#4caf50" : "#ff6b6b";
             contadorPassword.textContent = ok ? "Contraseña correcta" : "Contraseña incorrecta";
         });
 
         // ─── VALIDACIÓN FINAL AL ENVIAR ───────────────────────────────────────
         form.addEventListener("submit", e => {
-            // Si el DNI no tiene el formato correcto, bloqueamos el envío
             if (!regexDNI.test(inputDNI.value)) {
                 e.preventDefault();
                 shake();
                 contadorDNI.textContent = "DNI inválido";
                 barraDNI.style.background = "#ff6b6b";
             }
-            // Si está bien, el formulario se envía normalmente al servidor
         });
     </script>
 </body>

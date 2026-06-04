@@ -8,17 +8,12 @@ return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
-            $table->id(); // idCategoria
-            $table->string('name'); // nombreCategoria
+            $table->id();
+            $table->string('name')->unique();
             $table->timestamps();
-        });
-
-        // Ahora, añadimos la relación a la tabla de encuestas existente
-        Schema::table('surveys', function (Blueprint $table) {
-            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
         });
     }
 

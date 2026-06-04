@@ -14,18 +14,17 @@ class Survey extends Model
 {
     use HasFactory;
 
-    /**
-     * ? Campos permitidos para asignación masiva.
-     * Añadimos 'is_active' para que el controlador pueda guardarlo.
-     */
-    protected $fillable = ['title', 'is_active'];
+    protected $fillable = [
+        'title',
+        'description',
+        'is_active',
+        'type',           // Asegúrate de que esta columna exista en la tabla
+        'max_selections'  // Asegúrate de que esta columna exista en la tabla
+    ];
 
-    /**
-     * * Definición de tipos (Casts)
-     * Tratamos is_active como un booleano (true/false) automáticamente.
-     */
     protected $casts = [
         'is_active' => 'boolean',
+        'max_selections' => 'integer',
     ];
 
     /**
@@ -34,5 +33,23 @@ class Survey extends Model
     public function options()
     {
         return $this->hasMany(Option::class);
+    }
+
+    /**
+     * * Helper: ¿Esta encuesta usa categorías?
+     * Tipos B (single_cat) y D (multiple_cat) agrupan las opciones por categoría.
+     */
+    public function hasCategories(): bool
+    {
+        return in_array($this->type, ['single_cat', 'multiple_cat']);
+    }
+
+    /**
+     * * Helper: ¿Esta encuesta permite múltiples selecciones?
+     * Tipos C (multiple) y D (multiple_cat) permiten más de 1 selección.
+     */
+    public function isMultiple(): bool
+    {
+        return in_array($this->type, ['multiple', 'multiple_cat']);
     }
 }

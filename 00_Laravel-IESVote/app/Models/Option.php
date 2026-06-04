@@ -5,33 +5,51 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * ! ══════════════════════════════════════════════════════════════════
- * ! MODELO DE OPCIONES DE ENCUESTA
- * ! ══════════════════════════════════════════════════════════════════
- */
 class Option extends Model
 {
     use HasFactory;
 
-    // Campos permitidos para asignación masiva
-    protected $fillable = ['survey_id', 'option_text', 'votes'];
-
     /**
-     * ? Definición de tipos (Casts)
-     * Esto asegura que Laravel trate los votos siempre como un número entero (int)
-     * y el ID como tal, evitando problemas al sumar votos.
+     * Campos habilitados para la asignación masiva.
      */
-    protected $casts = [
-        'votes' => 'integer',
-        'survey_id' => 'integer',
+    protected $fillable = [
+        'survey_id',    // ID de la encuesta a la que pertenece
+        'category_id',  // ID de la categoría si aplica, o null
+        'option_text',  // El texto de la opción
+        'votes',        // Número de votos (añadido en migración posterior)
+        'vote_hash',    // Hash del voto (añadido en migración posterior)
+        'option_id',    // ID de la opción (añadido en migración posterior)
     ];
 
     /**
-     * * Relación: Una opción pertenece a una encuesta
+     * Conversión de tipos automática.
+     */
+    protected $casts = [
+        'survey_id' => 'integer',
+        'category_id' => 'integer',
+    ];
+
+    /**
+     * Relación: Una opción pertenece a una encuesta.
      */
     public function survey()
     {
         return $this->belongsTo(Survey::class);
+    }
+
+    /**
+     * Relación opcional: Una opción puede estar vinculada a un colectivo específico.
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Relación: Una opción puede recibir muchos votos registrados.
+     */
+    public function votes()
+    {
+        return $this->hasMany(VoteRecorded::class);
     }
 }

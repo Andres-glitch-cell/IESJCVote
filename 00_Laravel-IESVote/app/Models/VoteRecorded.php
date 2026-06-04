@@ -15,7 +15,7 @@ class VoteRecorded extends Model
     use HasFactory;
     protected $table = 'vote_recordeds';
 
-    protected $fillable = ['user_id', 'survey_id', 'vote_hash'];
+    protected $fillable = ['user_id', 'survey_id', 'vote_hash', 'option_id', 'created_at', 'updated_at'];
 
     /**
      * ? Relación: Un voto pertenece a una encuesta.
