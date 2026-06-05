@@ -491,8 +491,46 @@
                     </div>
                     <button type="button" id="btn-add-opcion" style="margin-top:12px;">Añadir Opción</button>
                 </div>
+                {{-- Campo: Roles permitidos --}}
+                <div class="campo">
+                    <label>Visible para</label>
+                    <div style="display: flex; gap: 10px; margin-top: 4px;">
 
-                {{-- Botón Enviar --}}
+                        <label
+                            style="display:flex; align-items:center; gap:6px; font-size:13px;
+                       color:var(--text); text-transform:none; letter-spacing:0;
+                       background:rgba(255,255,255,.03); border:1px solid var(--stroke);
+                       padding:10px 14px; border-radius:10px; cursor:pointer;">
+                            <input type="checkbox" name="allowed_roles[]" value="alumno"
+                                style="width:auto; accent-color:white;">
+                            Alumnos
+                        </label>
+
+                        <label
+                            style="display:flex; align-items:center; gap:6px; font-size:13px;
+                       color:var(--text); text-transform:none; letter-spacing:0;
+                       background:rgba(255,255,255,.03); border:1px solid var(--stroke);
+                       padding:10px 14px; border-radius:10px; cursor:pointer;">
+                            <input type="checkbox" name="allowed_roles[]" value="profesor"
+                                style="width:auto; accent-color:white;">
+                            Profesores
+                        </label>
+
+                        <label
+                            style="display:flex; align-items:center; gap:6px; font-size:13px;
+                       color:var(--text); text-transform:none; letter-spacing:0;
+                       background:rgba(255,255,255,.03); border:1px solid var(--stroke);
+                       padding:10px 14px; border-radius:10px; cursor:pointer;">
+                            <input type="checkbox" name="allowed_roles[]" value="padre"
+                                style="width:auto; accent-color:white;">
+                            Padres
+                        </label>
+
+                    </div>
+                    <small style="color:var(--muted); font-size:11px; margin-top:6px; display:block;">
+                        Si no marcas ninguno, la encuesta será visible para todos.
+                    </small>
+                </div>
                 <button type="submit" class="btn-primario">Publicar Encuesta</button>
             </form>
 
@@ -574,22 +612,25 @@
                         @foreach ($surveys as $survey)
                             <tr style="border-bottom:1px solid var(--stroke);">
                                 <td style="padding:16px 12px;">{{ $survey->title }}</td>
+                                {{-- Formulario Toggle Activar/Desactivar Votación --}}
                                 <td style="padding:16px 12px;">
-                                    {{-- Formulario Toggle Activar/Desactivar Votación --}}
-                                    <form action="{{ route('surveys.toggle', $survey->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit"
-                                            style="display: flex; align-items: center; gap: 8px; background: {{ $survey->recount_active ? '#81c784' : '#444' }}; color: white; border-radius: 6px; padding: 6px 12px; cursor: pointer; border: none; font-size: 12px; transition: 0.3s;">
-                                            <span
-                                                style="width: 8px; height: 8px; border-radius: 50%; background: {{ $survey->recount_active ? '#fff' : '#777' }};"></span>
-                                            {{ $survey->recount_active ? 'DESACTIVAR' : 'ACTIVAR' }}
-                                        </button>
-                                    </form>
+                                    <a href="{{ route('admin.toggle.maintenance') }}"
+                                        style="display: flex; align-items: center; gap: 8px;
+              background: {{ $survey->recount_active ? '#81c784' : '#444' }};
+              color: white; border-radius: 6px; padding: 6px 12px;
+              cursor: pointer; border: none; font-size: 12px;
+              text-decoration: none; width: fit-content; transition: 0.3s;">
+                                        <span
+                                            style="width: 8px; height: 8px; border-radius: 50%;
+                     background: {{ $survey->recount_active ? '#fff' : '#777' }};"></span>
+                                        {{ $survey->recount_active ? 'DESACTIVAR' : 'ACTIVAR' }}
+                                    </a>
                                 </td>
                                 <td style="padding:16px 12px; text-align: right;">
-                                    <a href="{{ route('admin.surveys.results', $survey->id) }}"
-                                        style="color: #64b5f6; text-decoration: none; font-weight: 500;">Ver
-                                        Resultados</a>
+                                    <a href="{{ route('admin.maintenance') }}"
+                                        style="color: #64b5f6; text-decoration: none; font-weight: 500;">
+                                        Ver Resultados
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach

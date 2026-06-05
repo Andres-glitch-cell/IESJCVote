@@ -6,16 +6,24 @@ use App\Models\Survey;
 use App\Models\Option;
 use App\Models\VoteRecorded;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; // IMPORTANTE: Necesario para la transacción
+use Illuminate\Support\Facades\DB;
 
 class SurveyController extends Controller
 {
     // ──────────────────────────────────────────────────────────────────────
-    // VISTA PÚBLICA: listado de encuestas activas para votar
+    // VISTA PÚBLICA: listado de encuestas activas filtradas por rol
     // ──────────────────────────────────────────────────────────────────────
     public function index()
     {
+        $userRole = auth()->user()->role;
+
+        // Solo mostramos encuestas activas que permitan el rol del usuario
+        // Si allowed_roles es null, la encuesta es visible para todos
         $surveys = Survey::where('is_active', true)
+            ->where(function ($query) use ($userRole) {
+                $query->whereNull('allowed_roles')
+                    ->orWhereJsonContains('allowed_roles', $userRole);
+            })
             ->with('options')
             ->latest()
             ->get();
@@ -28,11 +36,10 @@ class SurveyController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────────
-    // PROCESAR VOTO (acepta radio o checkbox según el tipo de encuesta)
+    // PROCESAR VOTO
     // ──────────────────────────────────────────────────────────────────────
     public function vote(Request $request)
     {
-        // 1. Normalización de las opciones seleccionadas
         $isSingle = $request->has('option_id');
 
         if ($isSingle) {
@@ -41,17 +48,16 @@ class SurveyController extends Controller
         } else {
             $request->validate([
                 'option_ids' => 'required|array|min:1',
-                'option_ids.*' => 'exists:options,id'
+                'option_ids.*' => 'exists:options,id',
             ]);
             $optionIds = $request->option_ids;
         }
 
-        // 2. Cargamos la encuesta
         $firstOption = Option::with('survey')->findOrFail($optionIds[0]);
         $survey = $firstOption->survey;
         $userId = auth()->id();
 
-        // 3. Verificaciones de seguridad
+        // Verificamos que todas las opciones pertenecen a la misma encuesta
         $allBelongToSurvey = Option::whereIn('id', $optionIds)
             ->where('survey_id', $survey->id)
             ->count() === count($optionIds);
@@ -60,6 +66,7 @@ class SurveyController extends Controller
             return redirect()->route('surveys')->with('error', 'Opciones inválidas.');
         }
 
+        // Verificamos que el usuario no ha votado ya
         $exists = VoteRecorded::where('user_id', $userId)
             ->where('survey_id', $survey->id)
             ->exists();
@@ -68,11 +75,13 @@ class SurveyController extends Controller
             return redirect()->route('surveys')->with('error', 'Ya has votado en esta encuesta.');
         }
 
+        // Verificamos límite de selecciones para tipos múltiples
         if ($survey->isMultiple() && count($optionIds) > $survey->max_selections) {
             return redirect()->route('surveys')
                 ->with('error', "Solo puedes seleccionar un máximo de {$survey->max_selections} opciones.");
         }
 
+        // Verificamos 1 opción por categoría para tipos con categorías
         if ($survey->hasCategories()) {
             $categoriesSelected = Option::whereIn('id', $optionIds)->pluck('category')->toArray();
             if (count($categoriesSelected) !== count(array_unique($categoriesSelected))) {
@@ -81,15 +90,12 @@ class SurveyController extends Controller
             }
         }
 
-        // 4. Procesamiento seguro del voto
+        // Procesamos el voto en una transacción
         $codigoHash = bin2hex(random_bytes(16));
 
-        // Usamos una transacción para asegurar que si algo falla, no se guarden datos parciales
         DB::transaction(function () use ($optionIds, $userId, $survey, $codigoHash) {
-            // Incrementamos votos en cada opción seleccionada
             Option::whereIn('id', $optionIds)->increment('votes');
 
-            // Creamos un registro por cada opción marcada
             foreach ($optionIds as $id) {
                 VoteRecorded::create([
                     'user_id' => $userId,
@@ -107,7 +113,7 @@ class SurveyController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────────
-    // RESGUARDO DE VOTO
+    // RESGUARDO
     // ──────────────────────────────────────────────────────────────────────
     public function receipt()
     {
@@ -147,36 +153,39 @@ class SurveyController extends Controller
             'title' => 'required|string|max:255',
             'type' => 'required|in:single,single_cat,multiple,multiple_cat',
             'max_selections' => 'nullable|integer|min:1',
+            'allowed_roles' => 'nullable|array',
+            'allowed_roles.*' => 'in:alumno,profesor,padre',
             'options' => 'required|array|min:2',
             'options.*' => 'required|string|max:255',
             'categories' => 'nullable|array',
             'categories.*' => 'nullable|string|max:255',
         ]);
 
-        $titulo = trim($request->title);
         $type = $request->type;
         $hasCategories = in_array($type, ['single_cat', 'multiple_cat']);
         $isMultiple = in_array($type, ['multiple', 'multiple_cat']);
         $maxSelections = $isMultiple ? max(1, (int) $request->max_selections) : 1;
-
         $opciones = array_values(array_filter(array_map('trim', $request->options)));
         $categorias = $request->categories ?? [];
+
+        // Si no se selecciona ningún rol, la encuesta es visible para todos
+        $allowedRoles = $request->allowed_roles ?? null;
 
         if (count($opciones) < 2)
             return back()->with('error', 'Debes incluir al menos 2 opciones.');
 
         if ($hasCategories) {
             foreach ($opciones as $i => $texto) {
-                $cat = trim($categorias[$i] ?? '');
-                if (empty($cat))
+                if (empty(trim($categorias[$i] ?? '')))
                     return back()->with('error', "La opción \"{$texto}\" necesita una categoría.");
             }
         }
 
         $survey = Survey::create([
-            'title' => $titulo,
+            'title' => trim($request->title),
             'type' => $type,
             'max_selections' => $maxSelections,
+            'allowed_roles' => $allowedRoles,
             'is_active' => true,
         ]);
 
@@ -188,7 +197,7 @@ class SurveyController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.dashboard')->with('success', $titulo);
+        return redirect()->route('admin.dashboard')->with('success', $survey->title);
     }
 
     public function toggle(Survey $survey)
@@ -202,5 +211,17 @@ class SurveyController extends Controller
     {
         $survey->delete();
         return redirect()->route('admin.dashboard')->with('deleted', 'true');
+    }
+
+    public function results(Survey $survey)
+    {
+        $survey->load('options');
+        return view('admin.surveys.results', compact('survey'));
+    }
+
+    public function export(Survey $survey)
+    {
+        // TODO: implementar exportación
+        return back()->with('error', 'Exportación en desarrollo.');
     }
 }

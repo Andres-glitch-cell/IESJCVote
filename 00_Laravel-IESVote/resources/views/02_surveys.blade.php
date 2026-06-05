@@ -264,7 +264,7 @@
               text-decoration:none; border:1px solid rgba(255,255,255,.1); transition:.3s; z-index:100;">
         <div style="text-align:right;">
             <span style="font-size:12px; color:rgba(255,255,255,.9); display:block; font-weight:500;">
-                {{ auth()->user()->name ?? 'Usuario' }}
+                {{ auth()->user()->username ?? 'Usuario' }}
             </span>
         </div>
         <div

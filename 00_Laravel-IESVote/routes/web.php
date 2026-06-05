@@ -8,16 +8,20 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 
 // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-// VISTAS PÚBLICAS
+// VISTAS PÚBLICAS (Acceso sin autenticación)
 // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 
 Route::get('/', fn() => view('01_login'))->name('home');
 Route::get('/login', fn() => view('01_login'))->name('login');
-Route::get('/register', fn() => view('00_register'))->name('register'); // ✅ corregido
+Route::get('/register', fn() => view('00_register'))->name('register');
 
+// Rutas POST para registro e inicio de sesión
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// ✅ LOGOUT CORREGIDO: Debe ser POST para evitar error 419 Page Expired
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
 
 // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 // RUTAS PROTEGIDAS (Requieren autenticación)
@@ -37,6 +41,17 @@ Route::middleware(['auth'])->group(function () {
     // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
     // PANEL DE ADMINISTRACIÓN (Acceso restringido a ADMIN)
     // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+    // Rutas de mantenimiento (públicas dentro del grupo auth)
+    Route::get('/admin/maintenance', function () {
+        return view('admin.maintenance');
+    })->name('admin.maintenance');
+
+    Route::get('/admin/toggle-maintenance', function () {
+        return view('admin.toggle-maintenance');
+    })->name('admin.toggle.maintenance');
+
+    // Grupo exclusivo para administradores
     Route::middleware(['admin'])->group(function () {
 
         // Dashboard principal admin

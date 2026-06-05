@@ -9,10 +9,11 @@ return new class extends Migration {
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('username')->unique();
-            $table->string('dni')->unique();      // Identificación obligatoria
-            $table->string('password');          // ¡Añadida la columna para la contraseña!
+            $table->string('name');           // ✅ cambiado de username a name
+            $table->string('dni')->unique();
+            $table->string('password');
             $table->boolean('is_admin')->default(false);
+            $table->rememberToken();          // ✅ necesario para Laravel Auth
             $table->timestamps();
         });
     }

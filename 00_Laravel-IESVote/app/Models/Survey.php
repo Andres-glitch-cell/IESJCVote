@@ -5,6 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * ! ══════════════════════════════════════════════════════════════════
+ * ! MODELO DE ENCUESTAS
+ * ! ══════════════════════════════════════════════════════════════════
+ */
 class Survey extends Model
 {
     use HasFactory;
@@ -17,6 +22,7 @@ class Survey extends Model
         'is_active',
         'is_real_time_enabled',
         'is_anonymous',
+        'allowed_roles',  // ✅ añadido
     ];
 
     protected $casts = [
@@ -24,21 +30,30 @@ class Survey extends Model
         'is_real_time_enabled' => 'boolean',
         'is_anonymous' => 'boolean',
         'max_selections' => 'integer',
+        'allowed_roles' => 'array',
     ];
 
-    // Una encuesta tiene muchas opciones
+    /**
+     * * Relación: Una encuesta tiene muchas opciones
+     */
     public function options()
     {
         return $this->hasMany(Option::class);
     }
 
-    // ¿Esta encuesta agrupa opciones por categoría? (tipos B y D)
+    /**
+     * * Helper: ¿Esta encuesta usa categorías?
+     * Tipos B (single_cat) y D (multiple_cat) agrupan las opciones por categoría.
+     */
     public function hasCategories(): bool
     {
         return in_array($this->type, ['single_cat', 'multiple_cat']);
     }
 
-    // ¿Esta encuesta permite múltiples selecciones? (tipos C y D)
+    /**
+     * * Helper: ¿Esta encuesta permite múltiples selecciones?
+     * Tipos C (multiple) y D (multiple_cat) permiten más de 1 selección.
+     */
     public function isMultiple(): bool
     {
         return in_array($this->type, ['multiple', 'multiple_cat']);

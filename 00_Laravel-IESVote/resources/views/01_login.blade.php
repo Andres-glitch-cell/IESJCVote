@@ -262,13 +262,11 @@
             <form id="form" method="POST" action="{{ route('login.post') }}">
                 @csrf
 
-                {{-- Campo: Nombre de usuario --}}
                 <div class="campo">
                     <label>Usuario</label>
-                    {{-- [CORREGIDO] Atributos id y name cambiados a 'username' para enrutar con el Backend --}}
-                    <input id="username" name="username" type="text" placeholder="Ej: Juan"
-                        value="{{ old('username') }}" required>
-                    @error('username')
+                    <input id="nombre" name="nombre" type="text" placeholder="Ej: Juan"
+                        value="{{ old('nombre') }}" required>
+                    @error('nombre')
                         <div class="error-backend">{{ $message }}</div>
                     @enderror
                 </div>
@@ -312,9 +310,7 @@
     </div>
 
     <script>
-        // ─── REFERENCIAS A ELEMENTOS DEL DOM ─────────────────────────────────
-        // [CORREGIDO] Referencia cambiada al nuevo id 'username'
-        const inputNombre = document.getElementById("username");
+        const inputNombre = document.getElementById("nombre");
 
         const inputDNI = document.getElementById("dni"),
             barraDNI = document.getElementById("barraDNI"),
@@ -367,8 +363,14 @@
             }
         });
 
-        // ─── VALIDACIÓN EN TIEMPO REAL DE LA CLAVE ADMIN ─────────────────────
         inputPassword.addEventListener("input", () => {
+            if (inputPassword.value === "") {
+                barraPassword.style.width = "0%";
+                barraPassword.style.background = "rgba(255, 255, 255, 0.9)";
+                contadorPassword.textContent = "";
+                return;
+            }
+
             const ok = inputPassword.value === "IESJCVote2026";
             barraPassword.style.width = "100%";
             barraPassword.style.background = ok ? "#4caf50" : "#ff6b6b";
