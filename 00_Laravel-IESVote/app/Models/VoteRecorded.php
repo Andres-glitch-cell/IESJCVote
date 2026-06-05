@@ -5,32 +5,34 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * ! ══════════════════════════════════════════════════════════════════
- * ! MODELO DE REGISTRO DE VOTOS
- * ! ══════════════════════════════════════════════════════════════════
- */
 class VoteRecorded extends Model
 {
     use HasFactory;
+
     protected $table = 'vote_recordeds';
 
-    protected $fillable = ['user_id', 'survey_id', 'vote_hash', 'option_id', 'created_at', 'updated_at'];
+    protected $fillable = [
+        'user_id',
+        'survey_id',
+        'option_id',
+        'vote_hash',
+    ];
 
-    /**
-     * ? Relación: Un voto pertenece a una encuesta.
-     */
+    // Un voto pertenece a una encuesta
     public function survey()
     {
         return $this->belongsTo(Survey::class);
     }
 
-    /**
-     * * Relación: Un voto pertenece a un usuario (¡Importante añadirla!).
-     * Al tener esta relación, podrás hacer: $vote->user->name
-     */
+    // Un voto pertenece a un usuario
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Un voto pertenece a una opción
+    public function option()
+    {
+        return $this->belongsTo(Option::class);
     }
 }

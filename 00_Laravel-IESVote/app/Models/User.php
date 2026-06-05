@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Category;
+use App\Models\VoteRecorded;
 
 class User extends Authenticatable
 {
@@ -14,7 +16,7 @@ class User extends Authenticatable
      * Campos habilitados para la asignación masiva.
      */
     protected $fillable = [
-        'username', // Cambiado de 'name' a 'username' para coincidir con la base de datos
+        'username',
         'dni',
         'is_admin',
         'password',
@@ -37,16 +39,23 @@ class User extends Authenticatable
     ];
 
     /**
-     * Relación: Historial de votaciones en las que ha participado este usuario.
-     * Sirve para comprobar si ya ha ejercido su derecho al voto en una urna digital.
+     * Helper para comprobar permisos de administrador.
      */
-    public function pollRegisters()
+    public function isAdmin(): bool
     {
-        return $this->hasMany(PollRegister::class);
+        return $this->is_admin === true;
     }
 
     /**
-     * Relación con las categorías o colectivos del instituto (Alumnos, Profesores, etc).
+     * Relación: Historial de votos registrados.
+     */
+    public function voteRecords()
+    {
+        return $this->hasMany(VoteRecorded::class);
+    }
+
+    /**
+     * Relación con las categorías o colectivos del instituto.
      */
     public function categories()
     {

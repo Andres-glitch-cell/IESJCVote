@@ -10,9 +10,10 @@ use App\Http\Controllers\Admin\DashboardController;
 // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 // VISTAS PÚBLICAS
 // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
 Route::get('/', fn() => view('01_login'))->name('home');
 Route::get('/login', fn() => view('01_login'))->name('login');
-Route::get('/register', fn() => view('00_register'))->name('register');
+Route::get('/register', fn() => view('00_register'))->name('register'); // ✅ corregido
 
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
@@ -27,7 +28,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/surveys', [SurveyController::class, 'index'])->name('surveys');
     Route::get('/surveys/receipt', [SurveyController::class, 'receipt'])->name('surveys.receipt');
     Route::get('/surveys/receipt/last', [SurveyController::class, 'showLastReceipt'])->name('surveys.last_receipt');
-
     Route::post('/surveys/vote', [SurveyController::class, 'vote'])->name('surveys.vote');
 
     // [GROUP] PERFIL E HISTORIAL
@@ -39,20 +39,18 @@ Route::middleware(['auth'])->group(function () {
     // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
     Route::middleware(['admin'])->group(function () {
 
-        // Gestión de Encuestas
+        // Dashboard principal admin
+        Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
+        // Gestión de encuestas
         Route::get('/admin/panel', [SurveyController::class, 'adminIndex'])->name('admin.panel');
         Route::post('/surveys', [SurveyController::class, 'store'])->name('surveys.store');
         Route::post('/surveys/{survey}/toggle', [SurveyController::class, 'toggle'])->name('surveys.toggle');
         Route::delete('/surveys/{survey}', [SurveyController::class, 'destroy'])->name('surveys.destroy');
-
-        // Resultados y exportación
         Route::get('/admin/surveys/{survey}/results', [SurveyController::class, 'results'])->name('admin.surveys.results');
         Route::get('/admin/surveys/{survey}/export', [SurveyController::class, 'export'])->name('admin.surveys.export');
 
-        // Dashboard Admin (NOMBRE CORREGIDO: ahora coincide con lo que AuthController espera)
-        Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-
-        // Gestión de Usuarios
+        // Gestión de usuarios
         Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
         Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
         Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');

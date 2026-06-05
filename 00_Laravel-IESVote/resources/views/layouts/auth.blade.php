@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Votación')</title>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
@@ -20,15 +19,12 @@
         * {
             margin: 0;
             padding: 0;
-            box-sizing: border-box
+            box-sizing: border-box;
         }
 
         body {
             font-family: Inter, sans-serif;
-            background:
-                radial-gradient(circle at 20% 20%, rgba(255, 255, 255, .08), transparent 35%),
-                radial-gradient(circle at 80% 0%, rgba(255, 255, 255, .05), transparent 40%),
-                var(--bg);
+            background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, .08), transparent 35%), radial-gradient(circle at 80% 0%, rgba(255, 255, 255, .05), transparent 40%), var(--bg);
             color: var(--text);
             min-height: 100vh;
         }
@@ -76,10 +72,6 @@
             backdrop-filter: blur(18px);
             box-shadow: 0 40px 100px rgba(0, 0, 0, .6);
             transition: .3s;
-        }
-
-        .card:hover {
-            transform: translateY(-3px)
         }
 
         .campo {
@@ -215,22 +207,14 @@
             <div class="titulo">Votación digital</div>
             <div class="subtitulo">Acceso seguro verificado</div>
         </div>
-
         <div class="card" id="card">
             @if (session('error'))
-                <div class="error-server" style="margin-bottom: 14px; text-align: center;">
-                    {{ session('error') }}
-                </div>
+                <div class="error-server" style="margin-bottom: 14px; text-align: center;">{{ session('error') }}</div>
             @endif
-
             @yield('content')
-
-            <div class="footer">
-                Sesión protegida
-            </div>
+            <div class="footer">Sesión protegida</div>
         </div>
     </div>
-
     @yield('scripts')
 </body>
 
