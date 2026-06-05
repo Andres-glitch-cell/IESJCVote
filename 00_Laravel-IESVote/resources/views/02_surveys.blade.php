@@ -25,6 +25,10 @@
             box-sizing: border-box;
         }
 
+        .opcion-item {
+            transition: background-color 0.3s ease;
+        }
+
         body {
             font-family: Inter, sans-serif;
             background:
@@ -332,8 +336,8 @@
                         @endswitch
                     </div>
 
+                    {{-- Verifica que el id sea el mismo que el usuario que ha hecho la encuesta / Mensaje de voto registrado --}}
                     @if (in_array($survey->id, $votedSurveys))
-                        {{-- Ya votó --}}
                         <div class="voto-registrado-box">
                             <span class="voto-registrado-tag">✓ PARTICIPACIÓN REGISTRADA</span>
                             Ya has emitido tu voto en este proceso electoral de manera correcta.
@@ -343,15 +347,19 @@
                         <form action="{{ route('surveys.vote') }}" method="POST" data-type="{{ $survey->type }}"
                             data-max="{{ $survey->max_selections }}">
                             @csrf
+                            {{-- Saber si la opción es múltiple o única, si tiene categorías, se le agrupa por su nombre si no, todas juntas, con una etiqueta genérica --}}
 
                             @php
                                 $isMultiple = $survey->isMultiple();
                                 $hasCategories = $survey->hasCategories();
 
-                                // Para tipos con categoría agrupamos las opciones
-                                $grouped = $hasCategories
-                                    ? $survey->options->groupBy('category')
-                                    : ['__all__' => $survey->options];
+                                if ($hasCategories) {
+                                    // Si tiene categorías, las agrupamos por su nombre
+                                    $grouped = $survey->options->groupBy('category');
+                                } else {
+                                    // Si no, metemos todas las opciones en una etiqueta genérica
+                                    $grouped = ['__all__' => $survey->options];
+                                }
                             @endphp
 
                             {{-- Contador solo para tipos múltiples --}}
@@ -364,24 +372,34 @@
                             @endif
 
                             <div class="opciones-container">
+                                {{-- IMPORTANTE Bucle 1: Recorremos los grupos de opciones --}}
                                 @foreach ($grouped as $categoria => $opciones)
-                                    {{-- Cabecera de categoría (tipos B y D) --}}
+                                    {{-- Si la encuesta tiene categorías, imprimimos el nombre de la categoría actual --}}
                                     @if ($hasCategories)
                                         <div class="categoria-titulo">{{ $categoria }}</div>
                                     @endif
 
+                                    {{-- IMPORTANTE Bucle 2: Recorremos las opciones individuales dentro de este grupo --}}
                                     @foreach ($opciones as $option)
-                                        <div class="opcion-item"
-                                            onclick="toggleOpcion(this, '{{ $isMultiple ? 'checkbox' : 'radio' }}')">
+                                        @php
+                                            if ($isMultiple) {
+                                                $tipoInput = 'checkbox';
+                                            } else {
+                                                $tipoInput = 'radio';
+                                            }
+                                        @endphp
+                                        {{-- [IMPORTANT]: En base a lo que ha elegido el usuario aparece el checkbox o radio --}}
 
+                                        <div class="opcion-item" onclick="toggleOpcion(this, '{{ $tipoInput }}')">
+                                            {{-- Si la encuesta es múltiple, creamos un checkbox --}}
                                             @if ($isMultiple)
-                                                {{-- Tipo C o D: checkbox --}}
                                                 <input type="checkbox" id="opcion_{{ $option->id }}"
                                                     name="option_ids[]" value="{{ $option->id }}"
                                                     class="input-opcion" data-survey="{{ $survey->id }}"
                                                     @if ($hasCategories) data-cat="{{ $option->category }}" @endif>
+
+                                                {{-- Si NO es múltiple, creamos un radio button --}}
                                             @else
-                                                {{-- Tipo A o B: radio --}}
                                                 <input type="radio" id="opcion_{{ $option->id }}" name="option_id"
                                                     value="{{ $option->id }}" class="input-opcion"
                                                     data-survey="{{ $survey->id }}"
@@ -389,6 +407,7 @@
                                                     required>
                                             @endif
 
+                                            {{-- Mostramos el texto de la opción --}}
                                             <label for="opcion_{{ $option->id }}">
                                                 {{ $option->option_text }}
                                             </label>
@@ -417,63 +436,63 @@
 
     <script>
         /**
-         * toggleOpcion — gestiona el click en cada fila de opción.
-         *
-         * Para radio: simplemente marca el input (el onclick del div evita
-         * que el label lo dispare dos veces).
-         *
-         * Para checkbox: marca/desmarca respetando max_selections y,
-         * en tipos con categoría, garantiza 1 sola selección por categoría.
+         * * toggleOpcion — Función principal que gestiona el comportamiento al hacer clic en una opción.
          */
         function toggleOpcion(div, tipo) {
             const input = div.querySelector('.input-opcion');
+            // IMPORTANT Buscamos el formulario padre para obtener configuraciones globales (límites, tipo)
             const form = div.closest('form');
 
+            // [IMPORTANT] LÓGICA PARA RADIOS (Selección única)
             if (tipo === 'radio') {
-                // Quitar clase de todos y añadir al actual
+                // Quitamos la clase 'seleccionada' de todas las opciones para limpiar la interfaz
                 form.querySelectorAll('.opcion-item').forEach(d => d.classList.remove('seleccionada'));
+                // Marcamos el input actual como seleccionado
                 input.checked = true;
+                // Resaltamos visualmente la fila actual
                 div.classList.add('seleccionada');
-                return;
+                return; // Terminamos aquí porque no hay validación de cantidad
             }
 
-            // ── CHECKBOX ──────────────────────────────────────────────────────
+            // [IMPORTANT] LÓGICA PARA CHECKBOXES (Selección múltiple)
+            // Obtenemos el límite máximo definido en el formulario o 99 si no existe
             const max = parseInt(form.dataset.max) || 99;
+            // Verificamos si la encuesta está configurada para trabajar por categorías
             const hasCategories = form.dataset.type.includes('cat');
+            // Obtenemos la categoría del input clickeado (si la tiene)
             const cat = input.dataset.cat || null;
 
             if (!input.checked) {
-                // Intentamos marcar
                 const yaSeleccionados = form.querySelectorAll('.input-opcion:checked').length;
-
-                // Límite global de selecciones
                 if (yaSeleccionados >= max) return;
 
-                // En tipos con categoría: solo 1 por categoría
                 if (hasCategories && cat) {
                     const mismaCategoria = form.querySelectorAll(`.input-opcion[data-cat="${cat}"]:checked`).length;
                     if (mismaCategoria >= 1) {
-                        // Quitamos la selección previa de esa categoría
                         form.querySelectorAll(`.input-opcion[data-cat="${cat}"]`).forEach(cb => {
                             cb.checked = false;
-                            cb.closest('.opcion-item').classList.remove('seleccionada');
+                            // ? En lugar de quitar clase, reseteamos el estilo directamente
+                            cb.closest('.opcion-item').style.backgroundColor = "transparent";
                         });
                     }
                 }
 
                 input.checked = true;
-                div.classList.add('seleccionada');
+                // ? Añadimos un color de fondo directamente con JS
+                div.style.backgroundColor = "#e0f7fa";
             } else {
-                // Desmarcar
                 input.checked = false;
-                div.classList.remove('seleccionada');
+                // ? Al desmarcar, devolvemos el fondo a transparente
+                div.style.backgroundColor = "transparent";
             }
 
-            // Actualizar contador y estado del botón
+            // ? Calculamos el total actual de marcados
             const total = form.querySelectorAll('.input-opcion:checked').length;
+            // ? Si existe un contador visual (.cnt), actualizamos su número
             const cnt = form.querySelector('.cnt');
             if (cnt) cnt.textContent = total;
 
+            // ? Habilitamos o deshabilitamos el botón de votar según si hay selecciones
             const btn = form.querySelector('.btn-votar');
             if (btn) btn.disabled = (total === 0);
         }

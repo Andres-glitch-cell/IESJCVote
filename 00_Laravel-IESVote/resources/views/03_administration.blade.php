@@ -667,51 +667,51 @@
     </div>
 
     {{-- ==========================================================================
-         BLOQUE H: LÓGICA DE JAVASCRIPT (JQUERY)
+         [IMPORTANT]: LÓGICA DE JQUERY
          ========================================================================== --}}
     <script>
         $(document).ready(function() {
-
             /* -------------------------------------------------------------
                H.1 LÓGICA DEL TIPO DE VOTACIÓN (Manejo de UI dinámico)
                ------------------------------------------------------------- */
             const tipoDescripciones = {
                 single: {
-                    label: 'Radio · 1 selección',
+                    label: 'Radio · 1 Selección',
                     cls: 'radio',
                     cat: false,
                     multi: false
                 },
                 single_cat: {
-                    label: 'Radio · categorías',
+                    label: 'Radio · Categorías',
                     cls: 'radio',
                     cat: true,
                     multi: false
                 },
                 multiple: {
-                    label: 'Checkbox · varias selecciones',
+                    label: 'Checkbox · Varias selecciones',
                     cls: 'checkbox',
                     cat: false,
                     multi: true
                 },
                 multiple_cat: {
-                    label: 'Checkbox · categorías',
+                    label: 'Checkbox · Categorías',
                     cls: 'checkbox',
                     cat: true,
                     multi: true
                 },
             };
 
+            // IMPORTANT Dependiendo de la configuración del tipo seleccionado, mostrar/ocultar campos relevantes
             function aplicarTipo(tipo) {
                 const cfg = tipoDescripciones[tipo];
 
-                // Actualizar Badge Visual
+                // * Actualizar Badge Visual
                 $('#badge-tipo')
                     .text(cfg.label)
                     .removeClass('radio checkbox')
                     .addClass(cfg.cls);
 
-                // Ocultar/Mostrar Campo max_selections
+                // * Ocultar/Mostrar Campo max_selections
                 if (cfg.multi) {
                     $('#campo-max-selections').show();
                     $('#max_selections').attr('required', true);
@@ -720,7 +720,7 @@
                     $('#max_selections').removeAttr('required');
                 }
 
-                // Ocultar/Mostrar Columna de Categorías
+                // * Ocultar/Mostrar Columna de Categorías
                 if (cfg.cat) {
                     $('#hint-cat').show();
                     $('.bloque-opcion').removeClass('sin-cat').addClass('con-cat');
@@ -732,7 +732,7 @@
                 }
             }
 
-            // Escuchar cambios en el selector de tipo
+            // [IMPORTANT]: Escuchar cambios en el selector de tipo
             $('#type').on('change', function() {
                 aplicarTipo($(this).val());
             });
@@ -741,10 +741,25 @@
                H.2 AÑADIR NUEVA OPCIÓN DINÁMICAMENTE
                ------------------------------------------------------------- */
             $('#btn-add-opcion').click(function() {
-                const tieneCategoria = $('#type').val().includes('cat');
-                const claseRow = tieneCategoria ? 'con-cat' : 'sin-cat';
-                const reqCat = tieneCategoria ? 'required' : '';
-                const count = $('#contenedor-opciones .bloque-opcion').length + 1;
+                const tipoActual = document.getElementById('type').value;
+                let claseRow = '';
+                let reqCat = '';
+
+                if (tipoActual.includes('cat')) {
+                    // ! Si incluye 'cat', configuramos los valores para cuando hay categorías
+                    claseRow = 'con-cat';
+                    reqCat = 'required';
+                } else {
+                    // ! Si NO incluye 'cat', configuramos los valores para cuando NO hay categorías
+                    claseRow = 'sin-cat';
+                    reqCat = '';
+                }
+
+                // IMPORTANT: Contador de opciones para asignar un número secuencial a la nueva opción
+                // Obtenemos la cantidad de bloques de opción que hay actualmente y sumamos 1 para el nuevo ID
+                const cantidadActual = document.querySelectorAll('#contenedor-opciones .bloque-opcion')
+                    .length;
+                const count = cantidadActual + 1;
 
                 // Plantilla HTML para la nueva fila
                 const bloque = `
@@ -762,7 +777,7 @@
                ------------------------------------------------------------- */
             let surveyIdToDelete = null;
 
-            // Función Global para abrir el modal
+            // Función Global para abrir el modal de eliminación con la información de la encuesta a eliminar
             window.showDeleteModal = function(id, title) {
                 surveyIdToDelete = id;
                 $('#modalSurveyName').html(
