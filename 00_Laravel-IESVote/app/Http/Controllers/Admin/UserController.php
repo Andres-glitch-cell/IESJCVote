@@ -2,28 +2,52 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+// ================================================
+// USER CONTROLLER - GESTIÓN DE USUARIOS (ADMIN)
+// ================================================
+// Controlador encargado de gestionar los usuarios desde el panel de administración.
 
+use App\Http\Controllers\Controller;
+use App\Models\User;                    // Modelo de Usuario
+use Illuminate\Http\Request;           // Para manejar las peticiones HTTP
+use Illuminate\Support\Facades\Hash;   // Para encriptar contraseñas
+
+/**
+ * Class UserController
+ *
+ * Maneja las operaciones CRUD básicas de usuarios para el administrador.
+ */
 class UserController extends Controller
 {
+    /**
+     * Muestra la lista de todos los usuarios
+     * Ruta: GET /admin/users
+     */
     // Llistar tots els usuaris
     public function index()
     {
+        // Obtiene todos los usuarios de la base de datos
         $users = User::all();
+
+        // Pasa la variable $users a la vista
         return view('admin.users.index', compact('users'));
     }
 
-    // Donar d'alta un usuari
+    /**
+     * Almacena un nuevo usuario en la base de datos
+     * Ruta: POST /admin/users
+     */
+    // Donar d'alta un usuari (Crear usuario)
     public function store(Request $request)
     {
+        // ================================================
+        // VALIDACIÓN DE DATOS
+        // ================================================
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'dni' => 'required|unique:users',
-            'subcategory_id' => 'required|exists:categories,id', // O la teua taula de subcategories
+            'subcategory_id' => 'required|exists:categories,id',
             'password' => 'required|min:8',
         ]);
 
@@ -35,10 +59,13 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('admin.users.index')->with('success', 'Usuari creat correctament.');
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Usuari creat correctament.');
     }
 
-    // Editar i assignar subcategoria
+    /**
+     * * Actualiza un usuario existente (actualmente solo subcategory_id)
+     */
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -54,12 +81,16 @@ class UserController extends Controller
         return back()->with('success', 'Subcategoria actualitzada per a ' . $user->name);
     }
 
-    // Donar de baixa (Eliminar)
+    /**
+     * * Elimina un usuario de la base de datos
+     * Ruta: DELETE /admin/users/{user}
+     */
     public function destroy($id)
     {
         $user = User::findOrFail($id);
         $user->delete();
 
-        return redirect()->route('admin.users.index')->with('success', 'Usuari eliminat.');
+        return redirect()->route('admin.users.index')
+            ->with('success', 'Usuari eliminat.');
     }
 }

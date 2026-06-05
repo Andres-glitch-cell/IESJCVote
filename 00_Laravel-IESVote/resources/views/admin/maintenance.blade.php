@@ -119,7 +119,6 @@
         </div>
 
         <div class="card">
-            <!-- SVG Icon de Mantenimiento -->
             <div class="icon">
                 <svg width="92" height="92" viewBox="0 0 24 24" fill="none" stroke="#64b5f6"
                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">

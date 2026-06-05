@@ -1,69 +1,96 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders; // Define la carpeta donde se guarda este archivo (database/seeders)
 
-use App\Models\User;
-use App\Models\Category;
-use App\Models\Poll;
-use App\Models\Option;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
+// IMPORTACIONES: Traemos los modelos y herramientas necesarios para que el Seeder pueda crear los datos
+use App\Models\User;                  // Importa el modelo de Usuarios para crear las cuentas
+use App\Models\Category;              // Importa el modelo de Categorías (Profesores, Alumnos, Padres)
+use App\Models\Poll;                  // Importa el modelo de Encuestas (aquí llamadas Poll)
+use App\Models\Option;                // Importa el modelo de Opciones para las respuestas de la encuesta
+use Illuminate\Database\Seeder;       // Importa la clase base de Laravel que da las funciones de Seeder
+use Illuminate\Support\Facades\Hash; // Importa la herramienta de encriptación segura para las contraseñas
 
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * El método 'run' contiene las órdenes de ejecución.
+     * Todo lo que pongas aquí dentro se meterá en la base de datos al ejecutar el comando.
      */
     public function run(): void
     {
-        // 1. Create the 3 mandatory core categories from the PDF
-        $teacherCategory = Category::create(['name' => 'Teachers']);
-        $studentCategory = Category::create(['name' => 'Students']);
-        $parentCategory = Category::create(['name' => 'Parents']);
+        // ══════════════════════════════════════════════════════════════════════
+        // 1. CREACIÓN DE LAS CATEGORÍAS OBLIGATORIAS
+        // ══════════════════════════════════════════════════════════════════════
+        // Creamos los tres grupos del colegio exigidos en los requisitos y los guardamos en variables
+        $teacherCategory = Category::create(['name' => 'Teachers']); // Grupo de Profesores
+        $studentCategory = Category::create(['name' => 'Students']); // Grupo de Alumnos
+        $parentCategory = Category::create(['name' => 'Parents']);  // Grupo de Padres
 
-        // 2. Create the Administrator User
+
+        // ══════════════════════════════════════════════════════════════════════
+        // 2. CREACIÓN DEL USUARIO ADMINISTRADOR
+        // ══════════════════════════════════════════════════════════════════════
+        // Creamos la cuenta del jefe del sistema para poder gestionar la web desde el principio
         $admin = User::create([
-            'username' => 'admin',
-            'dni' => '00000000A',
-            'password' => Hash::make('admin123'),
-            'is_admin' => true,
+            'username' => 'admin',                   // Nombre de usuario para el Login
+            'dni' => '00000000A',               // DNI de acceso del administrador
+            'password' => Hash::make('admin123'),    // Encripta la contraseña 'admin123' para que no sea visible
+            'is_admin' => true,                      // Activa el permiso especial de Administrador (true)
         ]);
 
-        // 3. Create a regular student user
+
+        // ══════════════════════════════════════════════════════════════════════
+        // 3. CREACIÓN DE UN ALUMNO NORMAL DE PRUEBA
+        // ══════════════════════════════════════════════════════════════════════
+        // Creamos un usuario común (alumno) con sus datos correspondientes
         $studentUser = User::create([
             'username' => 'andres_student',
             'dni' => '12345678X',
-            'password' => Hash::make('password123'),
-            'is_admin' => false,
+            'password' => Hash::make('password123'), // Contraseña encriptada segura
+            'is_admin' => false,                     // NO es administrador (usuario común)
         ]);
-        // Attach student to the Students category
+
+        // REGLA: Con 'attach()' metemos al alumno dentro del grupo 'Students' en la tabla intermedia
         $studentUser->categories()->attach($studentCategory->id);
 
-        // 4. Create a special user with MULTIPLE categories (Teacher + Parent exception)
+
+        // ══════════════════════════════════════════════════════════════════════
+        // 4. CREACIÓN DE UN USUARIO ESPECIAL (DOBLE CATEGORÍA)
+        // ══════════════════════════════════════════════════════════════════════
+        // Creamos un usuario de prueba para el caso especial del PDF (Profesor y Padre a la vez)
         $multiUser = User::create([
             'username' => 'joan_teacher_parent',
             'dni' => '87654321Z',
             'password' => Hash::make('password123'),
-            'is_admin' => false,
+            'is_admin' => false,                     // Tampoco es administrador
         ]);
-        // Attach to both categories to test the compound voting rule
+
+        // REGLA: Usamos 'attach()' pasándole un array con los dos IDs [Teachers, Parents]
+        // para que este usuario quede vinculado a ambos grupos a la vez y probar el voto compuesto.
         $multiUser->categories()->attach([$teacherCategory->id, $parentCategory->id]);
 
 
-        // 5. Create a sample Poll to test the application structure
+        // ══════════════════════════════════════════════════════════════════════
+        // 5. CREACIÓN DE UNA ENCUESTA DE MUESTRA
+        // ══════════════════════════════════════════════════════════════════════
+        // Creamos una votación inicial para comprobar que toda la estructura funciona bien en la web
         $samplePoll = Poll::create([
-            'title' => 'Consell Escolar 2026',
-            'description' => 'Official digital voting process for the school council.',
-            'type' => 'single_option', // Standard 1 selection poll
-            'is_real_time_enabled' => true,
-            'is_anonymous' => true,
-            'is_active' => true,
+            'title' => 'Consell Escolar 2026', // Título de la votación
+            'description' => 'Official digital voting process for the school council.', // Descripción
+            'type' => 'single_option',         // Tipo: Voto estándar de selección única (solo 1 opción)
+            'is_real_time_enabled' => true,                   // Permite ver los resultados en vivo mientras se vota
+            'is_anonymous' => true,                   // Voto secreto (oculta quién votó a qué)
+            'is_active' => true,                   // La encuesta se crea abierta y disponible para votar
         ]);
 
-        // 6. Create sample options for this poll
+
+        // ══════════════════════════════════════════════════════════════════════
+        // 6. CREACIÓN DE LAS OPCIONES DE RESPUESTA PARA LA ENCUESTA
+        // ══════════════════════════════════════════════════════════════════════
+        // Añadimos las alternativas que los usuarios verán en la pantalla para poder votar
         Option::create([
-            'poll_id' => $samplePoll->id,
-            'option_text' => 'Candidate A (Proposed by Teachers Association)',
+            'poll_id' => $samplePoll->id, // Vincula esta opción a la encuesta 'Consell Escolar 2026' usando su ID
+            'option_text' => 'Candidate A (Proposed by Teachers Association)', // Nombre del Candidato A
         ]);
 
         Option::create([

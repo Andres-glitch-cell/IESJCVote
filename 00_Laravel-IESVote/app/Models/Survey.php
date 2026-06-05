@@ -1,19 +1,15 @@
 <?php
 
 namespace App\Models;
+use Illuminate\Database\Eloquent\Factories\HasFactory; // * Importa la herramienta para crear datos de prueba (factories)
+use Illuminate\Database\Eloquent\Model; // * Importa la clase base de Eloquent que conecta este archivo con la base de datos
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-/**
- * ! ══════════════════════════════════════════════════════════════════
- * ! MODELO DE ENCUESTAS
- * ! ══════════════════════════════════════════════════════════════════
- */
 class Survey extends Model
 {
-    use HasFactory;
+    use HasFactory; // * Activa el uso de fábricas de datos para pruebas dentro del modelo
 
+    //Lista de columnas de la base de datos que permitimos rellenar de golpe de forma masiva desde un formulario (ej: usando Survey::create($request->all()))
     protected $fillable = [
         'title',
         'description',
@@ -22,9 +18,10 @@ class Survey extends Model
         'is_active',
         'is_real_time_enabled',
         'is_anonymous',
-        'allowed_roles',  // ✅ añadido
+        'allowed_roles',
     ];
 
+    // Convierte automáticamente los formatos de la base de datos a formatos nativos de PHP cuando los lees, para que trabajes con ellos de forma cómoda.
     protected $casts = [
         'is_active' => 'boolean',
         'is_real_time_enabled' => 'boolean',
@@ -33,29 +30,33 @@ class Survey extends Model
         'allowed_roles' => 'array',
     ];
 
-    /**
-     * * Relación: Una encuesta tiene muchas opciones
-     */
     public function options()
     {
+        // Indica que una encuesta  es dueña de muchas opciones
         return $this->hasMany(Option::class);
     }
 
-    /**
-     * * Helper: ¿Esta encuesta usa categorías?
-     * Tipos B (single_cat) y D (multiple_cat) agrupan las opciones por categoría.
-     */
+
     public function hasCategories(): bool
     {
-        return in_array($this->type, ['single_cat', 'multiple_cat']);
+
+        // Revisamos si el tipo de la encuesta es 'single_cat' O 'multiple_cat'.
+        if ($this->type === 'single_cat' || $this->type === 'multiple_cat') {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    /**
-     * * Helper: ¿Esta encuesta permite múltiples selecciones?
-     * Tipos C (multiple) y D (multiple_cat) permiten más de 1 selección.
-     */
+
     public function isMultiple(): bool
     {
-        return in_array($this->type, ['multiple', 'multiple_cat']);
+
+        // ? Revisamos si el tipo de la encuesta es 'multiple' O 'multiple_cat'. si se cumple cualquiera de los dos, significa que el usuario puede elegir más de una respuesta y devolvemos true.
+        if ($this->type === 'multiple' || $this->type === 'multiple_cat') {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

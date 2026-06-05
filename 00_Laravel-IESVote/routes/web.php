@@ -1,48 +1,74 @@
 <?php
 
+
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 
-// ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-// VISTAS PÚBLICAS (Acceso sin autenticación)
-// ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+
+/**
+ * Rutas públicas - Cualquier persona puede acceder sin estar logueado
+ */
 
 Route::get('/', fn() => view('01_login'))->name('home');
 Route::get('/login', fn() => view('01_login'))->name('login');
+
+// Ruta para mostrar el formulario de registro
 Route::get('/register', fn() => view('00_register'))->name('register');
 
-// Rutas POST para registro e inicio de sesión
+// ================================================
+// ** RUTAS POST (Procesamiento de formularios)
+// ================================================
+
+// Procesar el registro de un nuevo usuario
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+
+// Procesar el inicio de sesión
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
-// ✅ LOGOUT CORREGIDO: Debe ser POST para evitar error 419 Page Expired
+// Si fuera GET, causaría el error 419 Page Expired
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-// RUTAS PROTEGIDAS (Requieren autenticación)
+// RUTAS PROTEGIDAS (Requieren estar autenticado)
 // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+
+/**
+ * Todas las rutas dentro de este grupo requieren que el usuario esté logueado
+ * gracias al middleware 'auth'
+ */
 Route::middleware(['auth'])->group(function () {
 
-    // [GROUP] ENCUESTAS Y LÓGICA DE VOTACIÓN
+    // ================================================
+    // ** GRUPO 1: ENCUESTAS Y VOTACIÓN
+    // ================================================
     Route::get('/surveys', [SurveyController::class, 'index'])->name('surveys');
     Route::get('/surveys/receipt', [SurveyController::class, 'receipt'])->name('surveys.receipt');
     Route::get('/surveys/receipt/last', [SurveyController::class, 'showLastReceipt'])->name('surveys.last_receipt');
     Route::post('/surveys/vote', [SurveyController::class, 'vote'])->name('surveys.vote');
 
-    // [GROUP] PERFIL E HISTORIAL
+    // ================================================
+    // ** GRUPO 2: PERFIL DE USUARIO E HISTORIAL
+    // ================================================
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::get('/history', [ProfileController::class, 'history'])->name('history');
 
+
     // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-    // PANEL DE ADMINISTRACIÓN (Acceso restringido a ADMIN)
+    // PANEL DE ADMINISTRACIÓN
     // ! ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 
-    // Rutas de mantenimiento (públicas dentro del grupo auth)
+    /**
+     * Rutas de mantenimiento
+     * [IMPORTANT]: Están dentro de 'auth' pero FUERA del middleware 'admin'
+     * Esto permite que cualquier usuario logueado vea la página de "en mantenimiento"
+     */
     Route::get('/admin/maintenance', function () {
         return view('admin.maintenance');
     })->name('admin.maintenance');
@@ -51,21 +77,28 @@ Route::middleware(['auth'])->group(function () {
         return view('admin.toggle-maintenance');
     })->name('admin.toggle.maintenance');
 
-    // Grupo exclusivo para administradores
-    Route::middleware(['admin'])->group(function () {
 
-        // Dashboard principal admin
+    /**
+     * Grupo exclusivo solo para administradores
+     * [IMPORTANT]: Requiere el middleware 'admin' (EnsureUserIsAdmin)
+     */
+    Route::middleware(['admin'])->group(function () {
         Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
-        // Gestión de encuestas
+        // ================================================
+        // ** GESTIÓN DE ENCUESTAS
+        // ================================================
         Route::get('/admin/panel', [SurveyController::class, 'adminIndex'])->name('admin.panel');
         Route::post('/surveys', [SurveyController::class, 'store'])->name('surveys.store');
         Route::post('/surveys/{survey}/toggle', [SurveyController::class, 'toggle'])->name('surveys.toggle');
         Route::delete('/surveys/{survey}', [SurveyController::class, 'destroy'])->name('surveys.destroy');
+
         Route::get('/admin/surveys/{survey}/results', [SurveyController::class, 'results'])->name('admin.surveys.results');
         Route::get('/admin/surveys/{survey}/export', [SurveyController::class, 'export'])->name('admin.surveys.export');
 
-        // Gestión de usuarios
+        // ================================================
+        // ** GESTIÓN DE USUARIOS
+        // ================================================
         Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
         Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
         Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');

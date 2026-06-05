@@ -1,18 +1,16 @@
+{{-- 1. ENTRADA DE DATOS  --}}
 @props(['label', 'name', 'placeholder' => '', 'type' => 'text'])
 
 <div class="campo">
+    {{-- 2. EL TÍTULO  --}}
     <label>{{ $label }}</label>
+
+    {{-- 3. LA CASILLA DE ENTRADA  --}}
     <input id="{{ $name }}" name="{{ $name }}" type="{{ $type }}" placeholder="{{ $placeholder }}"
         value="{{ old($name) }}" {{ $attributes }}>
 
-    <div class="error" id="err{{ ucfirst($name) }}"></div>
-
+    {{-- 5. ERRORES DE LARAVEL DESDE EL SERVIDOR  --}}
     @error($name)
         <div class="error-server">{{ $message }}</div>
     @enderror
-
-    <div class="barra-container">
-        <div class="barra" id="barra{{ ucfirst($name) }}"></div>
-    </div>
-    <div class="contador" id="contador{{ ucfirst($name) }}"></div>
 </div>
