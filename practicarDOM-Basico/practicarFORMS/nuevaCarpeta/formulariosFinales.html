@@ -28,7 +28,7 @@
         </label>
         <label>
             Tarjeta <input type="radio" id="pagarTarjeta" name="metodoPago">
-            <div id="inputTargeta"></div>
+            <div id="añadirContenidoAlDiv"></div>
         </label>
         <br>
         <button type="submit">Enviar Formulario</button>
@@ -42,11 +42,13 @@
         let elementoCheckboxExtra = document.getElementById("extrasCheckbox")
         let elementoContenedorExtras = document.getElementById("contenedorExtras")
         let elementosExtras = document.createElement("div")
-        let contenidoExtras = elementosExtras.innerHTML = `
+        let contenidoExtras = `
             <label> Extra de Salsa de Tomate <input type="radio" id="extraSalsaTomate" name="grupoExtras"></label><br>
             <label> Extra de Champiñones<input type="radio" id="extraChampiñones" name="grupoExtras"></label><br>
             <label>Donar<input type="radio" id="donativo" name="grupoExtras"></label> <br><br>
         `
+        elementosExtras.innerHTML = contenidoExtras
+
         elementoCheckboxExtra.addEventListener("change", () => {
             if (elementoCheckboxExtra.checked) {
                 elementoContenedorExtras.appendChild(elementosExtras);
@@ -58,21 +60,20 @@
         // [IMPORTANT]: RADIOBUTTONS (MÉTODO DE PAGO)
         let elementoTargeta = document.getElementById("pagarTarjeta")
         let elementoEfectivo = document.getElementById("pagarEfectivo")
-        let añadirInputTargeta = document.getElementById("inputTargeta")
-        let añadirTargeta = document.createElement("div")
-        let contenidoTargeta = añadirTargeta.innerHTML = `
-            <label>
-               Introduce tu targeta: <input type="text" id="targetaNumero"> 
-            </label>`
+
+        let añadirInputTargetaAlDiv = document.getElementById("añadirContenidoAlDiv")
+        let nodoDiv = document.createElement("div")
+        let contenidoNodoDiv = `<br><label>Introduce tu tarjeta: <input type="text" id="tarjetaNumero"></label>`;
+        nodoDiv.innerHTML = contenidoNodoDiv
         elementoTargeta.addEventListener("change", () => {
             if (elementoTargeta.checked) {
-                añadirInputTargeta.appendChild(añadirTargeta)
+                añadirInputTargetaAlDiv.appendChild(nodoDiv)
             }
         })
 
         elementoEfectivo.addEventListener("change", function () {
             if (elementoEfectivo.checked) {
-                añadirTargeta.remove();
+                nodoDiv.remove();
             }
         });
 
