@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            background-color: rgb(66, 66, 66);
+        }
+    </style>
+</head>
+
+<body>
+    <form id="miFormulario">
+        <label>Nombre: </label>
+        <input id="nombre" type="text">
+        <br> <br>
+        <label>Correo: </label>
+        <input id="correo" type="text">
+        <br><br>
+        <select id="selectOpciones">
+            <option>Elija una opción</option>
+            <option value="10">Pizza 10 €</option>
+            <option value="7">Coca Cola 7 €</option>
+            <option value="2">Agua 2 €</option>
+        </select>
+        <br><br>
+        <button type="button" id="camposExtra">Quiere algo extra?</button>
+        <br><br>
+        <button id="botonSubmit" type="submit">Enviar</button>
+    </form>
+
+    <script>
+        let totalAPagar = 0
+
+        let elementoCampoExtra = document.getElementById("camposExtra")
+        elementoCampoExtra.addEventListener("click", (e) => {
+            let codigoExtra = document.createElement("p");
+            codigoExtra.innerHTML = `<select id="miSelectPropina">
+        <option>Cantidad de propina a enviar</option>
+        <option value="5">5€</option>
+        <option value="10">10€</option>
+        <option value="20">20€</option>
+    </select>`;
+            document.body.appendChild(codigoExtra);
+        });
+
+        let elementoFormulario = document.getElementById("miFormulario")
+        let elementoNombre = document.getElementById("nombre")
+        let elementoCorreo = document.getElementById("correo")
+        let botonSubmit = document.getElementById("botonSubmit")
+
+        elementoFormulario.addEventListener("submit", (e) => {
+            e.preventDefault();
+            let elementoNombreValue = elementoNombre.value
+            let elementoCorreoValue = elementoCorreo.value
+
+            // ** Desactivar botón de onSubmit cuando se envía por primera vez.
+            botonSubmit.disabled = true
+
+            // [IMPORTANT]: CAMPO NOMBRE
+            // ! Nombre debe de contener 1 letra mayus, y 1 o muchas letras minúsculas, pueden contener acentos
+            let regexpNombre = /^[A-Z][a-záéíóúÁÉÍÓÚ]+$/
+            if (elementoNombreValue === "") {
+                alert("No has introducido un nombre, el campo esta vacío")
+            } else if (!regexpNombre.test(elementoNombreValue)) {
+                alert("El campo nombre contiene caracteres inválidos o no ha introducido la primera letra en Mayuscula")
+            } else {
+                let mostrarNombre = document.createElement("p")
+                mostrarNombre.textContent = "Su nombre es: " + elementoNombreValue
+                document.body.appendChild(mostrarNombre)
+            }
+
+            // [IMPORTANT]: CAMPO CORREO
+            // ! Como el . forma parte de las regExp que significa cualquier caracter se pone una \ junto con el . para que se convierta en un literal y se deba a que debe de contener @gmail.com
+            let regexpCorreo = /^[a-zA-Z0-9]{1,19}@gmail\.com$/
+
+            if (elementoCorreoValue === "") {
+                alert("No has introducido un correo, el campo esta vacío")
+            } else if (!regexpCorreo.test(elementoCorreoValue)) {
+                alert("El campo correo contiene caracteres inválidos o no ha introducido el @gmail.com")
+            } else {
+                let mostrarCorreo = document.createElement("p")
+                mostrarCorreo.innerHTML = "Su correo es: " + elementoCorreoValue
+                document.body.appendChild(mostrarCorreo)
+            }
+
+            let elementoMiSelectPropina = document.getElementById("miSelectPropina")
+            if (elementoMiSelectPropina) {
+                let mostrarPropina = document.createElement("p")
+                mostrarPropina.textContent = "A elegido apoyarnos con " + elementoMiSelectPropina.value + " € de propina"
+                document.body.appendChild(mostrarPropina)
+            } else {
+                mostrarPropina.textContent = "No nos ha dado propina."
+                document.body.appendChild(mostrarPropina)
+            }
+
+            // [IMPORTANT]: CAMPO SELECT (OPCIONES MÚLTIPLES)
+            let elementoSelect = document.getElementById("selectOpciones")
+            let precioOpcion = parseInt(elementoSelect.value)
+            if (isNaN(precioOpcion)) {
+                return
+            } else {
+                totalAPagar += precioOpcion
+            }
+            let textoOpcion = elementoSelect.options[elementoSelect.selectedIndex].text
+            let mostrarTexto = document.createElement("p")
+            mostrarTexto.innerHTML = `<p> La opción que has elegido ha sido: ${textoOpcion} con el precio de ${precioOpcion} € </p>`
+            document.body.appendChild(mostrarTexto)
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>NoteBookLM 2.0</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .normal {
+            color: blue;
+            font-size: 20px;
+        }
+
+        .destacado {
+            font-weight: bold;
+            color: brown;
+            font-size: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <p id="provisional">Este párrafo es temporal y va a desaparecer.</p>
+    <button id="boton_eliminar">Eliminar Párrafo</button>
+
+    <a id="mi_enlace" href="https://google.com">Ir a un sitio</a>
+    <p id="texto_estilo" class="normal">Texto con estilo variable</p>
+
+    <div class="recuadro" style="width:50px; height:50px; border:1px solid black; float:left; margin:5px;"></div>
+    <div class="recuadro" style="width:50px; height:50px; border:1px solid black; float:left; margin:5px;"></div>
+    <div class="recuadro" style="width:50px; height:50px; border:1px solid black; float:left; margin:5px;"></div>
+    <br> <br><br><br>
+
+    <form id="mi_formulario" onsubmit="validar()">
+        <input type="text" id="nombre_usuario" placeholder="Tu nombre">
+        <input type="submit" value="Enviar">
+    </form>
+
+    <br><br>
+
+    <div id="reloj"></div>
+
+
+    <script>
+        /** @type {HTMLCollectionOf<HTMLElement>} */
+
+        // ! Ejercicio 5
+        let elementoBotonEliminar = document.getElementById("boton_eliminar")
+        elementoBotonEliminar.addEventListener("click", () => {
+            let elementoIDProvisional = document.getElementById("provisional")
+            elementoIDProvisional.remove()
+        })
+
+        // ! Ejercicio 6
+        let elementoMiEnlace = document.getElementById("mi_enlace")
+        elementoMiEnlace.setAttribute("href", "https://www.librosweb.es")
+
+        let elementoMiBotonConEstiloVariable = document.getElementById("texto_estilo")
+        elementoMiBotonConEstiloVariable.addEventListener("mouseenter", () => {
+            elementoMiBotonConEstiloVariable.className = "destacado"
+        })
+
+        elementoMiBotonConEstiloVariable.addEventListener("mouseout", () => {
+            elementoMiBotonConEstiloVariable.className = "normal"
+        })
+
+        // ! Ejercicio 7
+        function recuadrosVerde() {
+            let elementosRecuadro = document.getElementsByClassName("recuadro");
+            for (let i = 0; i < elementosRecuadro.length; i++) {
+                elementosRecuadro[i].addEventListener("mouseenter", function () {
+                    this.style.backgroundColor = "green"
+                })
+                elementosRecuadro[i].addEventListener("mouseleave", function () {
+                    this.style.backgroundColor = "white"
+                })
+            };
+        }
+        window.onload = recuadrosVerde()
+
+        // ! Ejercicio 8
+        let elementoMiFormulario = document.getElementById("mi_formulario")
+        function validar() {
+            elementoMiFormulario.addEventListener("submit", (e) => {
+                e.preventDefault()
+                let elementoNombre = document.getElementById("nombre_usuario")
+                let elementoNombreValue = elementoNombre.value
+
+                if (elementoNombreValue === "") {
+                    alert("El nombre esta vacío")
+                    e.preventDefault();
+                } else {
+                    let elementoParrafo = document.createElement("p")
+                    let contenido = elementoParrafo.textContent = "Su nombre es: " + elementoNombreValue
+                    document.body.appendChild(elementoParrafo)
+                }
+            })
+        }
+        window.onload = validar()
+
+        // ! Ejercicio 9 BOM
+        setTimeout(() => {
+
+            if (confirm("Quieres ir a la pagina de https://librosweb.es?")) {
+                window.location = "https://youtube.com"
+            } else {
+                alert("Has rechazado")
+            }
+        }, 5000);
+
+        // ! Ejercicio 10
+        function relojDigital() {
+
+            const fecha = new Date()
+            let horas = fecha.getHours()
+            let minutos = fecha.getMinutes()
+            let segundos = fecha.getSeconds()
+
+            if (horas < 10) {
+                horas = '0' + horas;
+            }
+
+            if (minutos < 10) {
+                minutos = '0' + minutos;
+            }
+
+            if (segundos < 10) {
+                segundos = '0' + segundos;
+            }
+            let elementoRelojDiv = document.getElementById("reloj")
+            elementoRelojDiv.innerHTML = horas + ":" + minutos + ":" + segundos
+        }
+
+        setInterval(relojDigital, 1000)
+
+    </script>
+</body>
+
+</html>

@@ -18,52 +18,183 @@
         label {
             color: black;
         }
+
+        /* Un pequeño estilo opcional para que los extras queden ordenados */
+        .bloque-extra {
+            background-color: #b0b0b0;
+            padding: 10px;
+            margin: 10px 0;
+            width: 70%;
+            border-radius: 5px;
+        }
     </style>
 </head>
 
 <body>
-    <!-- [IMPORTANT] Hacer un formulario que contenga:
-    * Formulario básico y funcional
-    * Restricciones de caracteres (que no se pueda escribir en un campo incorrecto) 
-    * Igualmente si puede escribir caracteres especiales o algo por el estilo que no se le deje
-    * Añadir nodos, se quiere decir, añadir una parte la que sea, con nodos.
-    * Añadir lógicamnete expresiones regulares RegExp() 
-    * Mostrar resultados con otro innerHTML y en la consola mostrar un mensaje.
-    [IMPORTANT] -->
+    <form id="IDFormulario">
+        <hr style="margin-right: 50%; margin-top: 2%; margin-bottom: 2%; width: 70%;">
+        <label>Introduce tú nombre: </label>
+        <input type="text" id="IDInputTextoNombre">
+
+        <hr style="margin-right: 50%; margin-top: 2%; margin-bottom: 2%; width: 70%;">
+        <label>Introduce tú edad: </label>
+        <input type="text" id="IDInputTextoEdad">
+
+        <hr style="margin-right: 50%; margin-top: 2%; margin-bottom: 2%; width: 70%;">
+
+        <label>Cual es tu opinión sobre el servicio?</label>
+        <input type="textarea" style="width: 40%; height: 60px; margin-top: 2%; display: block;" id="IDInputTextoComer">
+
+        <div id="contenedorExtra"></div>
+
+        <hr style="margin-right: 50%; margin-top: 2%; margin-bottom: 2%; width: 70%;">
+        <button id="campoExtra" type="button">Si quiere añadir un extra.</button>
+        <button type="submit">Enviar Pedido</button>
+    </form>
 </body>
-<form id="IDFormulario">
-    <hr style="margin-right: 50%; margin-top: 2%; margin-bottom: 2%; width: 70%;">
-    <label>Introduce tú nombre: </label>
-    <input type="text" id="IDInputTextoNombre">
 
-    <hr style="margin-right: 50%; margin-top: 2%; margin-bottom: 2%; width: 70%;">
-    <label>Introduce tú edad: </label>
-    <input type="text" id="IDInputTextoEdad">
-
-    <hr style="margin-right: 50%; margin-top: 2%; margin-bottom: 2%; width: 70%;">
-
-    <label>Introduce lo que va a querer para llevar: </label>
-    <input type="text" style="width: 40%; height: 60px; margin-top: 2%; display: block;" id="IDInputTextoComer">
-
-    <hr style="margin-right: 50%; margin-top: 2%; margin-bottom: 2%; width: 70%;">
-
-    <button type="submit">Enviar Formulario</button>
-</form>
 <script>
-    let elementoFormulario = document.getElementById("IDFormulario")
-    let elementoNombre = document.getElementById("IDInputTextoNombre")
-    let elementoEdad = document.getElementById("IDInputTextoEdad")
-    let elementoComer = document.getElementById("IDInputTextoComer")
+    // =========================================================================
+    // 1. DECLARACIÓN DE VARIABLES Y SELECCIÓN DE ELEMENTOS (DOM)
+    // =========================================================================
+    let elementoFormulario = document.getElementById("IDFormulario");
+    let elementoNombre = document.getElementById("IDInputTextoNombre");
+    let elementoEdad = document.getElementById("IDInputTextoEdad");
+    let elementoComer = document.getElementById("IDInputTextoComer");
+    let elementoExtra = document.getElementById("campoExtra");
+    let contenedorExtra = document.getElementById("contenedorExtra"); // Capturamos el nuevo contenedor
 
+    // =========================================================================
+    // 2. FUNCIONES AUXILIARES (BOM)
+    // =========================================================================
+    function recargarPagina() {
+        location.reload();
+    }
+
+    // =========================================================================
+    // 3. EVENTOS DE CONTROL EN TIEMPO REAL (RESTRICCIONES DE TECLADO)
+    // =========================================================================
+
+    // [IMPORTANT]: Input NOMBRE
+    elementoNombre.addEventListener("keypress", (e) => {
+        if (e.key <= 10 || e.key >= 0 || e.key === " ") {
+            e.preventDefault();
+            console.log("No puedes introducir números en el campo nombre - Campo Nombre");
+        }
+    });
+
+    // [IMPORTANT]: Input EDAD
+    elementoEdad.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace") {
+            return;
+        }
+        if (elementoEdad.value.length >= 2 && !isNaN(e.key)) {
+            console.log("Ya has alcanzado el límite de 2 dígitos - Campo Edad");
+            e.preventDefault();
+            return;
+        }
+        if (isNaN(e.key) || e.key === " ") {
+            console.log("No puedes introducir letras en el campo edad - Campo Edad");
+            e.preventDefault();
+        }
+    });
+
+    // Input COMER (Límite de caracteres)
+    elementoComer.addEventListener("keypress", (e) => {
+        let elementoComerValue = elementoComer.value;
+        if (elementoComerValue.length >= 150) {
+            alert("No puedes sobrepasar los 150 caracteres");
+            e.preventDefault();
+        }
+    });
+
+    // =========================================================================
+    // 4. PROCESAMIENTO Y VALIDACIÓN FINAL DEL FORMULARIO (SUBMIT)
+    // =========================================================================
     elementoFormulario.addEventListener("submit", (e) => {
-        // [IMPORTANT] --> Ver el contenido del console.log("")
-        e.preventDefault()
-        let elementoNombreValue = elementoNombre.value
-        let parrafoVacio = document.createElement("p")
-        let contenidoParrafo = parrafoVacio.textContent = "Esto es un párrafo vacío"
-        let elementoHR = document.getel
+        e.preventDefault();
 
-    })
+        let elementoNombreValue = elementoNombre.value;
+        let elementoEdadValue = elementoEdad.value;
+        let regexpNombre = /^[A-Z][a-záéíóúÁÉÍÓÚÀÈÌÒÙàèìòù]+$/;
+
+        // Validaciones estándar
+        if (elementoNombreValue === "") {
+            alert("No puedes enviar el campo vacío");
+            recargarPagina();
+            return;
+        } else if (elementoNombreValue.length > 12) {
+            alert("Nombre demasiado largo");
+            recargarPagina();
+            return;
+        } else if (!regexpNombre.test(elementoNombreValue)) {
+            alert("Tu nombre contiene caracteres incorrectos o no contiene una letra Mayúscula al principio");
+            recargarPagina();
+            return;
+        }
+
+        // Si el nombre es correcto, mostramos los datos fijos
+        console.log("--- DATOS RECIBIDOS ---");
+        console.log("Su nombre es: " + elementoNombreValue);
+        console.log("Su edad es: " + elementoEdadValue);
+        console.log("Opinión: " + elementoComer.value);
+
+        let elementoSelect = document.getElementById("selectOpciones");
+        if (elementoSelect) {
+            console.log("Propina seleccionada (Value): " + elementoSelect.value);
+
+            let chk10 = document.getElementById("ComidaDe10").checked;
+            let chk5 = document.getElementById("ComidaDe5").checked;
+            let chk0 = document.getElementById("ComidaDe0").checked;
+            let chkRegalo = document.getElementById("regaloExtra").checked;
+
+            console.log("¿Comida 10/10?: " + chk10);
+            console.log("¿Comida 5/10?: " + chk5);
+            console.log("¿Comida 0/10?: " + chk0);
+            console.log("¿Quiere regalo extra de 10€?: " + chkRegalo);
+        } else {
+            console.log("El usuario no añadió ninguna opción extra.");
+        }
+        console.log("-----------------------");
+    });
+
+    // =========================================================================
+    // 5. MANIPULACIÓN DE NODOS DEL DOM (AÑADIR ELEMENTOS EXTRAS)
+    // =========================================================================
+    elementoExtra.addEventListener("click", () => {
+        // Evitamos duplicar el bloque si el usuario le da click muchas veces
+        if (document.getElementById("selectOpciones")) {
+            console.log("Las opciones extras ya están visibles.");
+            return
+        }
+
+        let parrafoVacio = document.createElement("p");
+        parrafoVacio.className = "bloque-extra";
+        parrafoVacio.innerHTML = ` 
+            <label for="selectOpciones">Elige una propina:</label>
+            <select id="selectOpciones">
+                <option value="0">Elegir opción</option>
+                <option value="1">Dar una propina de 1 €</option>
+                <option value="2">Dar una propina de 2 €</option>
+                <option value="3">Dar una propina de 3 €</option>
+                <option value="4">Dar una propina de 4 €</option>
+            </select>
+            <br><br>
+            <label>Comida de 10/10</label>
+            <input type="checkbox" id="ComidaDe10">
+
+            <label>Comida de 5/10</label>
+            <input type="checkbox" id="ComidaDe5">
+
+            <label>Comida de 0/10</label>
+            <input type="checkbox" id="ComidaDe0">
+            <br><br>
+            <label>Agua + Regalo extra (+10 €)</label>
+            <input type="checkbox" value="10" id="regaloExtra">`;
+
+        // Lo añadimos al contenedor que está DENTRO del formulario
+        contenedorExtra.appendChild(parrafoVacio);
+    });
 </script>
 
 </html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <div>
+        <p class="clase1">soy el parrafo 1 con la clase1</p>
+        <p class="clase1">soy el parrafo 2 con la clase1</p>
+        <p class="clase1">soy el parrafo 3 con la clase1</p>
+    </div>
+</body>
+<script>
+    // ! IMPORTANTE PARA QUE TE SALGA TODO LO RELACIONADO CON JS Vanilla
+    /** @type {HTMLCollectionOf<HTMLElement>} */
+    let elementoClaseUno = document.getElementsByClassName("clase1")
+    elementoClaseUno[1].addEventListener("mouseenter", () => {
+        for (let i = 0; i < elementoClaseUno.length; i++) {
+            if (elementoClaseUno[i] === elementoClaseUno[1]) {
+                elementoClaseUno[i].style.backgroundColor = "red"
+            }
+        }
+    })
+
+    elementoClaseUno[1].addEventListener("mouseout", () => {
+        for (let i = 0; i < elementoClaseUno.length; i++) {
+            if (elementoClaseUno[i] === elementoClaseUno[1]) {
+                elementoClaseUno[i].style.backgroundColor = "white"
+            }
+        }
+    })
+</script>
+
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Ejercicios NoteBookLM</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <p id="parrafo_uno">Este es el texto original.</p>
+    <ul id="lista_tareas"></ul>
+    <div id="caja" style="width:100px; height:100px; border:1px solid black;">
+    </div>
+
+    <a href="https://google.com">Google</a>
+    <a href="https://librosweb.es">LibrosWeb</a>
+    <a href="https://wikipedia.org">Wikipedia</a>
+
+    <script>
+        // ! Ejercicio Uno
+        let elementoParrafoUno = document.getElementById("parrafo_uno")
+        elementoParrafoUno.textContent = "¡Hola! He cambiado este texto usando el DOM"
+
+        // ! Ejercicio Dos
+        let elementoUL = document.getElementById("lista_tareas")
+        let elementoLI = document.createElement("li")
+        let contenidoLI = document.createTextNode("Aprender DOM")
+        elementoUL.appendChild(contenidoLI)
+
+        // ! Ejercicio Dos (Corregido)
+        elementoLI.appendChild(contenidoLI); // El texto va al LI
+        elementoUL.appendChild(elementoLI);  // El LI va al UL
+
+        // ! Ejericio Tres
+        let elementoCaja = document.getElementById("caja")
+        elementoCaja.style.border = "5px red solid"
+
+        // ! Ejercicio Cuatro
+        let elementosEnlaces = document.getElementsByTagName("a")
+        let contador = 0
+        for (let i = 0; i < elementosEnlaces.length; i++) {
+            if (elementosEnlaces[i]) {
+                contador++
+            }
+        }
+        let elementoMostrarDatos = document.createElement("p")
+        elementoMostrarDatos.innerHTML = `<p> Hay ${contador} enlaces </p>`
+        document.body.appendChild(elementoMostrarDatos)
+    </script>
+</body>
+
+</html>

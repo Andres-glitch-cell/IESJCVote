@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Formularios with NotebookLM</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body,
+        button,
+        select,
+        input {
+            background-color: grey;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="encuesta">
+        <label>¿En qué provincia vives?</label>
+        <select id="provincia">
+            <option value="">- Selecciona una -</option>
+            <option value="mad">Madrid</option>
+            <option value="bcn">Barcelona</option>
+            <option value="vlc">Valencia</option>
+        </select>
+        <br><br>
+        <label>Género:</label>
+        <input type="radio" name="genero" value="H"> Masculino
+        <input type="radio" name="genero" value="M"> Femenino
+        <br><br>
+        <button type="button" id="btn_mostrar">Mostrar Resumen</button>
+    </form>
+
+    <br><br><br>
+    <form id="registro" onsubmit="return validarRegistro()">
+        <input type="text" id="email_user" placeholder="Correo electrónico">
+        <input type="text" id="dni_user" placeholder="DNI (8 números y letra)">
+        <button type="submit">Registrar </button>
+    </form>
+
+    <script>
+        let elementoFormulario = document.getElementById("btn_mostrar")
+        elementoFormulario.addEventListener("click", () => {
+            // [IMPORTANT]: Bloque para mostrar el Select
+            // ! Sacamos el ID del Select para trabajar con el
+            let elementoSelect = document.getElementById("provincia")
+            // ! Y cogemos la opcion del SELECT que solamente haya sido seleccionada con selectedIndex y con el .text sacamos el texto que hay, por que con .value sacariamos el value que tiene puesto, en este caso, mad, bcn o vlc
+            let texto = elementoSelect.options[elementoSelect.selectedIndex].text
+            console.log("_______________")
+            console.log("Soy de: " + texto)
+
+            // [IMPORTANT]: Bloque para mostrar el Radio Button
+            let elementosRadioButtons = document.getElementsByName("genero")
+            for (let i = 0; i < elementosRadioButtons.length; i++) {
+                // [IMPORTANT]: Si el elemento esta seleccionado  (checkeado)
+                if (elementosRadioButtons[i].checked) {
+                    // ! De la opcion seleccionada
+                    let textoPlano = elementosRadioButtons[i].nextSibling.textContent.trim();
+                    console.log("Y soy de genero: " + textoPlano);
+                    console.log("_______________")
+
+                }
+            }
+
+        })
+
+        function validarRegistro(e) {
+            let regexpEmail = /\w{1,}[@][\w\-]{1,}([.]([\w\-]{1,})){1,3}$/
+            let regexpDNI = /^\d{8}[A-Z]$/
+            let elementoDNI = document.getElementById("dni_user")
+            let elementoEmail = document.getElementById("email_user")
+            let elementoDNIValue = elementoDNI.value
+            let elementoEmailValue = elementoEmail.value
+            if (!regexpEmail.test(elementoEmailValue)) {
+                alert("Hay caracteres incorrectos")
+                e.preventDefault();
+            } else {
+                alert("Correo bien formulado")
+            }
+
+            if (!regexpDNI.test(elementoDNIValue)) {
+                alert("Hay caracteres incorrectos")
+                e.preventDefault();
+            } else {
+                alert("DNI bien formulado")
+            }
+        }
+
+
+        /*
+        Reto 1: Variaciones de Números de Teléfono
+        El manual muestra que los teléfonos pueden validarse de muchas formas según su formato
+        */
+
+        // Formato con guiones: Debe validar que el número tenga 3 grupos de 3 cifras separados por guiones (ejemplo: 900-900-900)
+        let regexpNumeroTres = /^\d{3}-\d{3}-\d{3}$/
+
+        // Formato con paréntesis: Debe validar un número con las 3 primeras cifras encerradas por paréntesis, un espacio y luego las 6 cifras restantes(ejemplo: (900) 900900)
+        let regexpNumerosParentesis = /^\(\d{3}\)\s\d{6}$/
+
+        // Formato internacional: Debe validar un prefijo que empiece por +, seguido de 2 o 3 cifras, un espacio en blanco y finalmente 9 cifras consecutivas(ejemplo: +34 900900900)
+        let regexpNumeroInternacional = /^\+\d{2,3}\s\d{9}$/
+
+    </script>
+</body>
+
+</html>

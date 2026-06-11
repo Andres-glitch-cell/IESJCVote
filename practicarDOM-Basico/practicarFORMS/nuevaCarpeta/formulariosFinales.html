@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>NoteBookLM Formulario Final</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <!-- <button id="miboton" type="button">clica aqui</button> -->
+    <form id="miFormulario">
+        <h2>Tamaño de Pizza</h2>
+        <select id="opcionesTamañoPizza">
+            <option>Elige una opción</option>
+            <option value="5">Pequeña</option>
+            <option value="10">Mediana</option>
+            <option value="15">Grande</option>
+        </select>
+        <br><br>
+        <!-- ? Añadir un innerHTML para mostrar los extras -->
+        <label>
+            Extras <input type="checkbox" id="extrasCheckbox"><br><br>
+            <div id="contenedorExtras"></div>
+        </label>
+        <label>
+            Efectivo<input type="radio" id="pagarEfectivo" name="metodoPago">
+        </label>
+        <label>
+            Tarjeta <input type="radio" id="pagarTarjeta" name="metodoPago">
+            <div id="inputTargeta"></div>
+        </label>
+        <br>
+        <button type="submit">Enviar Formulario</button>
+    </form>
+    <script>
+        let totalAPagar = 0
+
+        let elementoFormulario = document.getElementById("miFormulario")
+
+        // [IMPORTANT]: CHECKBOX (EXTRAS)
+        let elementoCheckboxExtra = document.getElementById("extrasCheckbox")
+        let elementoContenedorExtras = document.getElementById("contenedorExtras")
+        let elementosExtras = document.createElement("div")
+        let contenidoExtras = elementosExtras.innerHTML = `
+            <label> Extra de Salsa de Tomate <input type="radio" id="extraSalsaTomate" name="grupoExtras"></label><br>
+            <label> Extra de Champiñones<input type="radio" id="extraChampiñones" name="grupoExtras"></label><br>
+            <label>Donar<input type="radio" id="donativo" name="grupoExtras"></label> <br><br>
+        `
+        elementoCheckboxExtra.addEventListener("change", () => {
+            if (elementoCheckboxExtra.checked) {
+                elementoContenedorExtras.appendChild(elementosExtras);
+            } else {
+                elementosExtras.remove();
+            }
+        });
+
+        // [IMPORTANT]: RADIOBUTTONS (MÉTODO DE PAGO)
+        let elementoTargeta = document.getElementById("pagarTarjeta")
+        let elementoEfectivo = document.getElementById("pagarEfectivo")
+        let añadirInputTargeta = document.getElementById("inputTargeta")
+        let añadirTargeta = document.createElement("div")
+        let contenidoTargeta = añadirTargeta.innerHTML = `
+            <label>
+               Introduce tu targeta: <input type="text" id="targetaNumero"> 
+            </label>`
+        elementoTargeta.addEventListener("change", () => {
+            if (elementoTargeta.checked) {
+                añadirInputTargeta.appendChild(añadirTargeta)
+            }
+        })
+
+        elementoEfectivo.addEventListener("change", function () {
+            if (elementoEfectivo.checked) {
+                añadirTargeta.remove();
+            }
+        });
+
+
+        elementoFormulario.addEventListener("submit", (e) => {
+            e.preventDefault()
+            let elementoBotonSubmit = document.getElementsByTagName("button")[0]
+            elementoBotonSubmit.disabled = true
+            // [IMPORTANT]: SELECT (TIPO DE PIZZA)
+            let elementoSelect = document.getElementById("opcionesTamañoPizza")
+            if (elementoSelect) {
+                let elementoMostrarTamañoPizza = document.createElement("p")
+                // IMPORTANT Sacar el texto PLANO
+                let textoPlanoOpciones = elementoSelect.options[elementoSelect.selectedIndex].text
+                if (textoPlanoOpciones === "Elige una opción") {
+                    alert("Esta opción no es apropiada")
+                    return
+                }
+                // IMPORTANT Sacar el VALUE
+                let opcionElegidaValue = elementoSelect.options[elementoSelect.selectedIndex].value
+                let contenidoMostrarTamañoPizza = elementoMostrarTamañoPizza.innerHTML = `<p> Ha elegido el tamaño de pizza: ${textoPlanoOpciones} con un valor de ${opcionElegidaValue} €`
+                document.body.appendChild(elementoMostrarTamañoPizza)
+            }
+
+        })
+        /*
+        * Ejercicio de "Simulacro de Examen" Si quieres practicar algo completo ahora mismo, intenta hacer este script:
+        Enunciado: Crea un formulario de "Pedido de Pizza".
+        Select: Elegir el tamaño (Pequeña, Mediana, Grande).
+        Checkbox: Extras (Queso, Bacon, Champiñones).
+        Radio: Forma de pago (Efectivo o Tarjeta).
+        Validación: Que el usuario haya elegido al menos un extra y una forma de pago.
+        */
+
+
+
+
+
+
+
+        // let elementoBoton = document.getElementById("miboton")
+        // elementoBoton.addEventListener("click", () => {
+        //     let elementoParrafo = document.createElement("p")
+        //     let contenidoParrafo = document.createTextNode("hola soy un parrafo añadido a la forma del libro")
+        //     elementoParrafo.appendChild(contenidoParrafo)
+        //     document.body.appendChild(elementoParrafo)
+        // })
+
+        // elementoBoton.addEventListener("mouseenter", () => {
+        //     let elementoParrafo2 = document.createElement("p")
+        //     // ? O tambien se puede hacer con: let contenidoParrafo2 = elementoParrafo2.innerHTML = "<p> hola soy un parrafo añadido a mi forma </p>"
+        //     let contenidoParrafo2 = elementoParrafo2.textContent = "hola soy un parrafo añadido a mi forma"
+        //     document.body.appendChild(elementoParrafo2)
+        // })
+
+    </script>
+</body>
+
+</html>
