@@ -25,10 +25,12 @@
         </label>
         <label>
             Efectivo<input type="radio" id="pagarEfectivo" name="metodoPago">
+            <div id="añadirContenidoAlDivEfectivo"></div>
+
         </label>
         <label>
             Tarjeta <input type="radio" id="pagarTarjeta" name="metodoPago">
-            <div id="añadirContenidoAlDiv"></div>
+            <div id="añadirContenidoAlDivTargeta"></div>
         </label>
         <br>
         <button type="submit">Enviar Formulario</button>
@@ -59,21 +61,30 @@
 
         // [IMPORTANT]: RADIOBUTTONS (MÉTODO DE PAGO)
         let elementoTargeta = document.getElementById("pagarTarjeta")
-        let elementoEfectivo = document.getElementById("pagarEfectivo")
-
-        let añadirInputTargetaAlDiv = document.getElementById("añadirContenidoAlDiv")
-        let nodoDiv = document.createElement("div")
-        let contenidoNodoDiv = `<br><label>Introduce tu tarjeta: <input type="text" id="tarjetaNumero"></label>`;
-        nodoDiv.innerHTML = contenidoNodoDiv
+        let añadirInputTargetaAlDiv = document.getElementById("añadirContenidoAlDivTargeta")
+        let nodoDivTargeta = document.createElement("div")
+        let contenidoNodoDivTargeta = `<br><label>Introduce tu tarjeta: <input type="text" id="tarjetaNumero"></label>`;
+        nodoDivTargeta.innerHTML = contenidoNodoDivTargeta
         elementoTargeta.addEventListener("change", () => {
             if (elementoTargeta.checked) {
-                añadirInputTargetaAlDiv.appendChild(nodoDiv)
+                nodoDivEfectivo.remove()
+                añadirInputTargetaAlDiv.appendChild(nodoDivTargeta)
             }
         })
 
+        let añadirInputEfectivoAlDiv = document.getElementById("añadirContenidoAlDivEfectivo")
+        let elementoEfectivo = document.getElementById("pagarEfectivo")
+        let nodoDivEfectivo = document.createElement("div")
+        let contenidoNodoDivEfectivo = `<br><label>Introduce la cantidad: <input type="number" id="tarjetaNumero"></label>`
+        nodoDivEfectivo.innerHTML = contenidoNodoDivEfectivo
         elementoEfectivo.addEventListener("change", function () {
             if (elementoEfectivo.checked) {
-                nodoDiv.remove();
+                nodoDivTargeta.remove();
+                elementoEfectivo.addEventListener("change", () => {
+                    if (elementoEfectivo.checked) {
+                        añadirInputEfectivoAlDiv.appendChild(nodoDivEfectivo)
+                    }
+                })
             }
         });
 
